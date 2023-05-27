@@ -1,0 +1,34 @@
+# https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+IndentWidth: 4
+ColumnLimit: 140
+UseTab: Never
+AllowShortIfStatementsOnASingleLine: false
+UseCRLF: false
+AlignArrayOfStructures: None
+# AlignArrayOfStructures: Left
+# AlignConsecutiveAssignments: Consecutive
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakTemplateDeclarations: Yes
+PointerAlignment: Left
+QualifierAlignment: Left
+SpaceAroundPointerQualifiers: Before
+SpaceBeforeCaseColon: false
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesInAngles: Never
+SpacesInCStyleCastParentheses: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+NamespaceIndentation: All
+SortIncludes: Never
