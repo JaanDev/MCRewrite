@@ -12,6 +12,7 @@ void Level::generate() {
     }
 
     for (const auto& chunk : m_chunks) {
+        chunk->calcLightDepths();
         chunk->generateMesh();
     }
 }
@@ -35,41 +36,45 @@ std::shared_ptr<Chunk> Level::getChunk(const ChunkPos& pos) {
     return nullptr;
 }
 
+std::shared_ptr<Chunk> Level::getChunk(const BlockPos& pos) {
+    if (pos.y >= chunkHeight)
+        return nullptr;
+
+    return getChunk(
+        ChunkPos {static_cast<int32_t>(floorf(pos.x / (float)chunkSize)), static_cast<int32_t>(floorf(pos.z / (float)chunkSize))});
+}
+
 BlockTypes Level::getBlock(const BlockPos& pos) {
     if (pos.y >= chunkHeight)
         return BlockTypes::Air;
 
-    auto chunk = getChunk({static_cast<int32_t>(floorf(pos.x / (float)chunkSize)), static_cast<int32_t>(floorf(pos.z / (float)chunkSize))});
+    auto chunk = getChunk(pos);
     if (!chunk)
         return BlockTypes::Air;
 
-    auto x = pos.x % chunkSize;
-    if (x < 0)
-        x = chunkSize - x;
-
-    auto z = pos.z % chunkSize;
-    if (z < 0)
-        z = chunkSize - z;
-
-    return chunk->getBlock({x, pos.y, z});
+    return chunk->getBlock(pos.local());
 }
 
 void Level::setTile(const BlockPos& pos, BlockTypes type) {
     if (pos.y >= chunkHeight)
         return;
 
-    auto chunk = getChunk({static_cast<int32_t>(floorf(pos.x / (float)chunkSize)), static_cast<int32_t>(floorf(pos.z / (float)chunkSize))});
+    auto chunk = getChunk(pos);
     if (!chunk)
         return;
 
-    auto x = pos.x % chunkSize;
-    if (x < 0)
-        x = chunkSize - x;
-
-    auto z = pos.z % chunkSize;
-    if (z < 0)
-        z = chunkSize - z;
-
-    chunk->setBlock({x, pos.y, z}, type);
+    chunk->setBlock(pos.local(), type);
+    chunk->calcLightDepths();
     chunk->generateMesh();
+}
+
+float Level::getBrightness(const BlockPos& pos) {
+    if (pos.y >= chunkHeight)
+        return 1.f;
+
+    auto chunk = getChunk(pos);
+    if (!chunk)
+        return 1.f;
+
+    return chunk->getBrightness(pos.local());
 }

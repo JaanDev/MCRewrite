@@ -9,6 +9,7 @@ int main() {
     // SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(winW, winH, "Minecraft rd-132211");
     // SetTargetFPS(60);
+    SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
 
     rlFPCamera cam;
     cam.Setup(70, {0, 0, 0});
@@ -32,7 +33,7 @@ int main() {
         glFogi(GL_FOG_MODE, 2048);
         glFogf(GL_FOG_DENSITY, .2f);
         glFogfv(GL_FOG_COLOR, fogColor);
-
+        
         lvl->render();
 
         glDisable(GL_FOG);

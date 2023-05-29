@@ -4,7 +4,8 @@
 #include <rlFPCamera.h>
 
 #include <GL/glew.h>
-#include <GL/GL.h>
+#include <GL/gl.h>
+// #include <GL/GL.h>
 
 #include <iostream>
 #include <filesystem>
