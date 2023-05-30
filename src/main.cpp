@@ -11,7 +11,7 @@ int main() {
     const int winH = 768;
     const float fogColor[4] = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f, 1.f};
 
-    // SetConfigFlags(FLAG_MSAA_4X_HINT);   
+    // SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(winW, winH, "Minecraft rd-132211");
     // SetTargetFPS(60);
     SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
@@ -38,20 +38,25 @@ int main() {
     while (!WindowShouldClose()) {
         timer->advanceTime();
 
-        auto a = timer->getA();
-
         for (uint32_t i = 0; i < timer->getTicks(); i++) {
             player->tick();
         }
 
         player->turn(GetMouseDelta());
 
+        auto playerPos = player->getPos();
+
         cam.SetCameraPosition(player->getPos());
         auto angle = player->getRot();
         cam.setAngle(angle);
         Vector3 target = Vector3Transform(Vector3 {0, 0, 1}, MatrixRotateZYX(Vector3 {angle.y, -angle.x, 0}));
         cam.setTarget(cam.GetCamera().position + target);
-        
+
+        // ray collisions
+        // auto chunk = lvl->getChunk(
+        //     BlockPos {static_cast<int32_t>(playerPos.x), static_cast<int32_t>(playerPos.y), static_cast<int32_t>(playerPos.z)});
+        // GetRayCollisionMesh(cam.GetViewRay(), chunk->)
+
         BeginDrawing();
 
         ClearBackground({127, 204, 255});

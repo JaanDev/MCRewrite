@@ -74,32 +74,6 @@ inline Vector3 operator-(Vector3 a, Vector3 b) {
     return {a.x - b.x, a.y - b.y, a.z - b.z};
 }
 
-// inline Vector3 operator+(Vector3& a, Vector3& b) {
-//     return {a.x + b.x, a.y + b.y, a.z + b.z};
-// }
-
-// inline Vector3 operator-(Vector3& a, Vector3& b) {
-//     return {a.x - b.x, a.y - b.y, a.z - b.z};
-// }
-
-// inline Vector3 operator+(Vector3& a, const Vector3& b) {
-//     return {a.x + b.x, a.y + b.y, a.z + b.z};
-// }
-
-// inline Vector3 operator-(Vector3& a, const Vector3& b) {
-//     return {a.x - b.x, a.y - b.y, a.z - b.z};
-// }
-
-// inline Vector3& operator+=(Vector3& a, Vector3& b) {
-//     a = a + b;
-//     return a;
-// }
-
-// inline Vector3& operator-=(Vector3& a, Vector3& b) {
-//     a = a - b;
-//     return a;
-// }
-
 inline Vector3& operator+=(Vector3& a, const Vector3& b) {
     a = a + b;
     return a;

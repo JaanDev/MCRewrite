@@ -18,6 +18,7 @@ class Chunk {
     void setBlock(const BlockPos& pos, BlockTypes type);
     float getBrightness(const BlockPos& pos);
     void calcLightDepths();
+    Mesh* getMesh();
 
   private:
     void generate();
