@@ -39,6 +39,14 @@ class rlFPCamera
 {
 public:
 
+    void setAngle(Vector2 angle) {
+        Angle = angle;
+    }
+
+    void setTarget(Vector3 target) {
+        this->ViewCamera.target = target;
+    }
+
     rlFPCamera();
 
     void Setup(float fovY, Vector3&& position);
@@ -132,7 +140,9 @@ protected:
 
     float TargetDistance = 0;               // Camera distance from position to target
     float PlayerEyesPosition = 0.5f;       // Player eyes position from ground (in meters)
+    // public:
     Vector2 Angle = { 0,0 };                // Camera angle in plane XZ
+    // protected:
 
     float CurrentBobble = 0;
 

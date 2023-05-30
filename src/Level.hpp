@@ -1,6 +1,7 @@
 #pragma once
 #include "includes.hpp"
 #include "Chunk.hpp"
+#include "AABB.hpp"
 
 class Chunk;
 
@@ -16,6 +17,7 @@ class Level {
     BlockTypes getBlock(const BlockPos& pos);
     void setTile(const BlockPos& pos, BlockTypes type);
     float getBrightness(const BlockPos& pos);
+    vector<std::shared_ptr<AABB>> getCubes(std::shared_ptr<AABB> other);
 
   private:
     std::vector<std::shared_ptr<Chunk>> m_chunks;
