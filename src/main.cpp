@@ -53,9 +53,7 @@ int main() {
         cam.setTarget(cam.GetCamera().position + target);
 
         // ray collisions
-        // auto chunk = lvl->getChunk(
-        //     BlockPos {static_cast<int32_t>(playerPos.x), static_cast<int32_t>(playerPos.y), static_cast<int32_t>(playerPos.z)});
-        // GetRayCollisionMesh(cam.GetViewRay(), chunk->)
+        
 
         BeginDrawing();
 
