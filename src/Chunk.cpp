@@ -277,3 +277,7 @@ void Chunk::calcLightDepths() {
         }
     }
 }
+
+Mesh* Chunk::getMesh() {
+    return &m_mesh;
+}

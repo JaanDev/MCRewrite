@@ -5,10 +5,10 @@ Timer::Timer(float ticksPerSecond)
 
 void Timer::advanceTime() {
     auto now = getNanos();
-    auto passedNS = now - m_lastTime;
+    long long passedNS = now - m_lastTime;
     m_lastTime = now;
 
-    passedNS = std::clamp(passedNS, 0L, 1000000000L);
+    passedNS = std::clamp(passedNS, 0LL, 1000000000LL);
 
     m_passedTime += passedNS * m_timeScale * m_ticksPerSecond / 1.0e9f;
     m_ticks = std::min(100, static_cast<int>(m_passedTime));
