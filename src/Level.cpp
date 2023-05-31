@@ -37,9 +37,6 @@ std::shared_ptr<Chunk> Level::getChunk(const ChunkPos& pos) {
 }
 
 std::shared_ptr<Chunk> Level::getChunk(const BlockPos& pos) {
-    if (pos.y >= chunkHeight)
-        return nullptr;
-
     return getChunk(
         ChunkPos {static_cast<int32_t>(floorf(pos.x / (float)chunkSize)), static_cast<int32_t>(floorf(pos.z / (float)chunkSize))});
 }
@@ -63,9 +60,28 @@ void Level::setTile(const BlockPos& pos, BlockTypes type) {
     if (!chunk)
         return;
 
+    auto chunkPos = chunk->getPos();
+
     chunk->setBlock(pos.local(), type);
     chunk->calcLightDepths();
     chunk->generateMesh();
+
+    auto localPos = pos.local();
+    // logD("localpos {} {} {} chunkpos {} {}", localPos.x, localPos.y, localPos.z, chunkPos.x, chunkPos.z);
+
+    if (localPos.x == 0) {
+        if (auto c = getChunk(ChunkPos {chunkPos.x - 1, chunkPos.z}))
+            c->generateMesh();
+    } else if (localPos.x == chunkSize - 1)
+        if (auto c = getChunk(ChunkPos {chunkPos.x + 1, chunkPos.z}))
+            c->generateMesh();
+
+    if (localPos.z == 0) {
+        if (auto c = getChunk(ChunkPos {chunkPos.x, chunkPos.z - 1}))
+            c->generateMesh();
+    } else if (localPos.z == chunkSize - 1)
+        if (auto c = getChunk(ChunkPos {chunkPos.x, chunkPos.z + 1}))
+            c->generateMesh();
 }
 
 float Level::getBrightness(const BlockPos& pos) {

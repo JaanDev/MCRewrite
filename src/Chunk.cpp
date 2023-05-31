@@ -1,6 +1,6 @@
 #include "Chunk.hpp"
 
-Chunk::Chunk(const ChunkPos& pos, Level* level) : m_pos(pos), m_level(level) {
+Chunk::Chunk(const ChunkPos& pos, Level* level) : m_pos(pos), m_level(level), m_built(false) {
     generate();
 }
 
@@ -17,35 +17,78 @@ ChunkPos Chunk::getPos() {
 }
 
 uint32_t Chunk::getFaceCount() {
+    TIME_MEASURE_BEGIN(GetFaceCount)
     uint32_t faces = 0;
+
+    auto chunkXP = m_level->getChunk(ChunkPos {m_pos.x + 1, m_pos.z}); // x+
+    auto chunkXM = m_level->getChunk(ChunkPos {m_pos.x - 1, m_pos.z}); // x-
+    auto chunkZP = m_level->getChunk(ChunkPos {m_pos.x, m_pos.z + 1}); // z+
+    auto chunkZM = m_level->getChunk(ChunkPos {m_pos.x, m_pos.z - 1}); // z-
 
     for (uint8_t x = 0; x < chunkSize; x++) {
         for (uint16_t y = 0; y < chunkHeight; y++) {
             for (uint8_t z = 0; z < chunkSize; z++) {
-                BlockPos pos = {m_pos.x * chunkSize + x, y, m_pos.z * chunkSize + z};
+                auto localPos = BlockPos {x, y, z};
+                auto globalPos = BlockPos {m_pos.x * chunkSize + x, y, m_pos.z * chunkSize + z};
 
-                if (m_level->isSolidTile(pos)) {
-                    if (!m_level->isSolidTile(pos + BlockPos {0, 1, 0})) // y+
+                if (isSolidTile(localPos)) {
+                    // y+
+                    if (!isSolidTile({x, y + 1, z}))
                         faces++;
 
-                    if (!m_level->isSolidTile(pos - BlockPos {0, 1, 0})) // y-
+                    // y-
+                    if (!isSolidTile({x, y - 1, z}))
                         faces++;
 
-                    if (!m_level->isSolidTile(pos + BlockPos {0, 0, 1})) // z+
-                        faces++;
+                    // z-
+                    if (z == 0) {
+                        if (m_pos.z == 0) // the block there will be air
+                            faces++;
+                        else if (!chunkZM->isSolidTile({x, y, chunkSize - 1}))
+                            faces++;
+                    } else {
+                        if (!isSolidTile({x, y, z - 1}))
+                            faces++;
+                    }
 
-                    if (!m_level->isSolidTile(pos - BlockPos {0, 0, 1})) // z-
-                        faces++;
+                    // z+
+                    if (z == chunkSize - 1) {
+                        if (m_pos.z == chunksCount - 1) // the block there will be air
+                            faces++;
+                        else if (!chunkZP->isSolidTile({x, y, 0}))
+                            faces++;
+                    } else {
+                        if (!isSolidTile({x, y, z + 1}))
+                            faces++;
+                    }
 
-                    if (!m_level->isSolidTile(pos + BlockPos {1, 0, 0})) // x+
-                        faces++;
+                    // x-
+                    if (x == 0) {
+                        if (m_pos.x == 0) // the block there will be air
+                            faces++;
+                        else if (!chunkXM->isSolidTile({chunkSize - 1, y, z}))
+                            faces++;
+                    } else {
+                        if (!isSolidTile({x - 1, y, z}))
+                            faces++;
+                    }
 
-                    if (!m_level->isSolidTile(pos - BlockPos {1, 0, 0})) // x-
-                        faces++;
+                    // x+
+                    if (x == chunkSize - 1) {
+                        if (m_pos.x == chunksCount - 1) // the block there will be air
+                            faces++;
+                        else if (!chunkXP->isSolidTile({0, y, z}))
+                            faces++;
+                    } else {
+                        if (!isSolidTile({x + 1, y, z}))
+                            faces++;
+                    }
                 }
             }
         }
     }
+    TIME_MEASURE_END(GetFaceCount)
+    TIME_MEASURE_DBG(GetFaceCount)
 
     return faces;
 }
@@ -78,21 +121,26 @@ void Chunk::generate() {
 }
 
 void Chunk::generateMesh() {
+    TIME_MEASURE_BEGIN(GenMeshTotal)
+
+    if (m_built)
+        unload();
+
     // thx to https://github.com/raylib-extras/examples-cpp/blob/main/voxel_mesher/main.cpp
+    TIME_MEASURE_BEGIN(GenMeshStart)
     Mesh m_mesh = {0};
 
     auto faceCount = getFaceCount();
     m_mesh.triangleCount = faceCount * 2;
     m_mesh.vertexCount = faceCount * 6;
 
-    // logD("tris {} verts {} faces {}", m_mesh.triangleCount, m_mesh.vertexCount, faceCount);
-
+    TIME_MEASURE_BEGIN(GenMeshStartArrays)
     m_mesh.vertices = static_cast<float*>(MemAlloc(sizeof(float) * 3 * m_mesh.vertexCount));
     m_mesh.normals = static_cast<float*>(MemAlloc(sizeof(float) * 3 * m_mesh.vertexCount));
-    // m_mesh.texcoords = nullptr;
     m_mesh.texcoords = static_cast<float*>(MemAlloc(sizeof(float) * 2 * m_mesh.vertexCount));
     m_mesh.colors = static_cast<uint8_t*>(MemAlloc(sizeof(uint8_t) * 4 * m_mesh.vertexCount));
-    // m_mesh.colors = nullptr;
+    TIME_MEASURE_END(GenMeshStartArrays)
+    TIME_MEASURE_DBG(GenMeshStartArrays)
 
     m_mesh.animNormals = nullptr;
     m_mesh.animVertices = nullptr;
@@ -101,6 +149,8 @@ void Chunk::generateMesh() {
     m_mesh.tangents = nullptr;
     m_mesh.indices = nullptr;
     m_mesh.texcoords2 = nullptr;
+    TIME_MEASURE_END(GenMeshStart)
+    TIME_MEASURE_DBG(GenMeshStart)
 
     uint32_t index = 0;
 
@@ -130,20 +180,22 @@ void Chunk::generateMesh() {
         col = {static_cast<uint8_t>(br * 255.f), static_cast<uint8_t>(br * 255.f), static_cast<uint8_t>(br * 255.f), 255};                 \
     }
 
+    TIME_MEASURE_BEGIN(GenMeshLoop)
+
     for (uint8_t x = 0; x < chunkSize; x++) {
         for (uint16_t y = 0; y < chunkHeight; y++) {
             for (uint8_t z = 0; z < chunkSize; z++) {
                 auto globalPos = BlockPos {m_pos.x * chunkSize + x, y, m_pos.z * chunkSize + z};
-                auto pos = BlockPos {x, y, z};
 
                 if (m_level->isSolidTile(globalPos)) {
+                    auto pos = BlockPos {x, y, z};
                     Vector3 normal;
                     Color col = {255, 255, 255, 255};
                     BlockPos newPos;
                     auto uv = AssetManager::sharedState()->uvForBlockType(getBlock(pos));
                     // auto uv = UV {0, 0, 1, 1};
 
-                    if (!m_level->isSolidTile(globalPos + BlockPos {0, 1, 0})) { // y+
+                    if (!isSolidTile({x, y + 1, z})) { // y+
                         CALC_COL(0, 1, 0)
                         normal = {0, 1, 0};
                         ADD_VERTEX(0, 1, 0, uv.startX, uv.startY)
@@ -155,7 +207,7 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(1, 1, 0, uv.endX, uv.startY)
                     }
 
-                    if (!m_level->isSolidTile(globalPos - BlockPos {0, 1, 0})) { // y-
+                    if (!isSolidTile({x, y - 1, z})) { // y-
                         CALC_COL(0, -1, 0)
                         normal = {0, -1, 0};
                         ADD_VERTEX(1, 0, 0, uv.endX, uv.startY)
@@ -219,28 +271,26 @@ void Chunk::generateMesh() {
         }
     }
 
-    // logD("index {}", index);
+    TIME_MEASURE_END(GenMeshLoop)
+    TIME_MEASURE_DBG(GenMeshLoop)
 
+    TIME_MEASURE_BEGIN(GenMeshUpload)
     UploadMesh(&m_mesh, false);
+    TIME_MEASURE_END(GenMeshUpload)
+    TIME_MEASURE_DBG(GenMeshUpload)
 
-    // Image checked = GenImageChecked(2, 2, 1, 1, RED, GREEN);
-    // Texture2D texture = LoadTextureFromImage(checked);
-    // UnloadImage(checked);
-
-    // auto texture = LoadRenderTexture(32, 16);
-    // BeginTextureMode(texture);
-    // ClearBackground(BLANK);
-    // DrawRectangle(0, 0, 16, 16, GREEN);
-    // DrawRectangle(16, 0, 16, 16, GRAY);
-    // EndTextureMode();
-
-    // auto texture = LoadTexture("assets/arrow.png");
-
-    // auto texture = AssetManager::sharedState()->textureForName("assets/gradient.png");
     auto texture = AssetManager::sharedState()->textureForName("assets/terrain.png");
 
+    TIME_MEASURE_BEGIN(GenMeshModel)
     m_model = LoadModelFromMesh(m_mesh);
     m_model.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;
+    TIME_MEASURE_END(GenMeshModel)
+    TIME_MEASURE_DBG(GenMeshModel)
+
+    m_built = true;
+
+    TIME_MEASURE_END(GenMeshTotal)
+    TIME_MEASURE_DBG(GenMeshTotal)
 }
 
 BlockTypes Chunk::getBlock(const BlockPos& pos) {
@@ -280,4 +330,8 @@ void Chunk::calcLightDepths() {
 
 Mesh* Chunk::getMesh() {
     return &m_mesh;
+}
+
+Model* Chunk::getModel() {
+    return &m_model;
 }

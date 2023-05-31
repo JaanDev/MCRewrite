@@ -19,6 +19,7 @@ class Chunk {
     float getBrightness(const BlockPos& pos);
     void calcLightDepths();
     Mesh* getMesh();
+    Model* getModel();
 
   private:
     void generate();
@@ -31,4 +32,5 @@ class Chunk {
     std::array<std::array<float, chunkSize>, chunkSize> m_lightDephts;
     Mesh m_mesh;
     Model m_model;
+    bool m_built;
 };

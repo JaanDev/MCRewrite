@@ -6,6 +6,7 @@ Player::Player(std::shared_ptr<Level> level)
 }
 
 void Player::resetPos() {
+    // setPos({randomFloat(0.f, chunksCount * chunkSize), chunkHeight + 10.f, randomFloat(0.f, chunksCount * chunkSize)});
     setPos({randomFloat(0.f, chunksCount * chunkSize), surfaceLevel + 10.f, randomFloat(0.f, chunksCount * chunkSize)});
 }
 
@@ -108,4 +109,8 @@ Vector3 Player::getPosO() {
 
 Vector3 Player::getPos() {
     return m_pos;
+}
+
+std::shared_ptr<AABB> Player::getAABB() {
+    return m_aabb;
 }

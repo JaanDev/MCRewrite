@@ -16,6 +16,7 @@ class Player {
     Vector2 getRot();
     Vector3 getPosO();
     Vector3 getPos();
+    std::shared_ptr<AABB> getAABB();
 
   private:
     std::shared_ptr<Level> m_level;

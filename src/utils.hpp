@@ -1,11 +1,12 @@
 #pragma once
 #include "includes.hpp"
+#include "rlgl.h"
 
-const uint8_t chunkSize = 16;     // x and z
-const uint16_t chunkHeight = 256; // y
-const uint8_t chunksCount = 4;
+const int chunkSize = 16;    // x and z
+const int chunkHeight = 256; // y
+const int chunksCount = 8;
 
-const uint8_t surfaceLevel = 10; // surface level
+const int surfaceLevel = 170; // surface level
 
 const float mouseSensitivity = .003f;
 
@@ -26,6 +27,10 @@ struct BlockPos {
 
     BlockPos operator-(const BlockPos& other) {
         return {x - other.x, y - other.y, z - other.z};
+    }
+
+    Vector3 operator+(Vector3 other) const {
+        return {x + other.x, y + other.y, z + other.z};
     }
 
     // global (level) pos to local (chunk) pos
@@ -96,3 +101,83 @@ inline Vector2& operator+=(Vector2& a, Vector2 b) {
     a = a + b;
     return a;
 }
+
+inline bool operator==(Vector3 a, Vector3 b) {
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+
+enum class Faces {
+    Up,    // y+
+    Down,  // y-
+    Back,  // z+
+    Front, // z-
+    Left,  // x+
+    Right  // x-
+};
+
+inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
+    const float awayFromBlock = .003f;
+
+    float x0 = blockPos.x;
+    float y0 = blockPos.y;
+    float z0 = blockPos.z;
+    float x1 = blockPos.x + 1.f;
+    float y1 = blockPos.y + 1.f;
+    float z1 = blockPos.z + 1.f;
+
+    switch (face) {
+    case Faces::Up:
+        y1 += awayFromBlock;
+        // y+
+        DrawTriangle3D({x0, y1, z0}, {x0, y1, z1}, {x1, y1, z0}, col);
+        DrawTriangle3D({x0, y1, z1}, {x1, y1, z1}, {x1, y1, z0}, col);
+        break;
+
+    case Faces::Down:
+        y0 -= awayFromBlock;
+        // y-
+        DrawTriangle3D({x1, y0, z0}, {x0, y0, z1}, {x0, y0, z0}, col);
+        DrawTriangle3D({x1, y0, z0}, {x1, y0, z1}, {x0, y0, z1}, col);
+        break;
+
+    case Faces::Back:
+        z1 += awayFromBlock;
+        // z-
+        DrawTriangle3D({x0, y0, z1}, {x1, y0, z1}, {x1, y1, z1}, col);
+        DrawTriangle3D({x0, y0, z1}, {x1, y1, z1}, {x0, y1, z1}, col);
+        break;
+
+    case Faces::Front:
+        z0 -= awayFromBlock;
+        // z+
+        DrawTriangle3D({x1, y1, z0}, {x1, y0, z0}, {x0, y0, z0}, col);
+        DrawTriangle3D({x0, y1, z0}, {x1, y1, z0}, {x0, y0, z0}, col);
+        break;
+
+    case Faces::Left:
+        x1 += awayFromBlock;
+        // x+
+        DrawTriangle3D({x1, y0, z0}, {x1, y1, z0}, {x1, y0, z1}, col);
+        DrawTriangle3D({x1, y1, z0}, {x1, y1, z1}, {x1, y0, z1}, col);
+        break;
+
+    case Faces::Right:
+        x0 -= awayFromBlock;
+        // x-
+        DrawTriangle3D({x0, y0, z0}, {x0, y0, z1}, {x0, y1, z1}, col);
+        DrawTriangle3D({x0, y0, z0}, {x0, y1, z1}, {x0, y1, z0}, col);
+        break;
+    }
+}
+
+// #define DO_TIME_MEASURING
+
+#ifdef DO_TIME_MEASURING
+#define TIME_MEASURE_BEGIN(name) auto name##_begin = std::chrono::system_clock::now();
+#define TIME_MEASURE_END(name) auto name##_end = std::chrono::system_clock::now();
+#define TIME_MEASURE_DBG(name) logD("Time measure for " #name ": {} millis", std::chrono::duration_cast<std::chrono::microseconds>(name##_end - name##_begin).count() / 1000.f);
+#else
+#define TIME_MEASURE_BEGIN(name)
+#define TIME_MEASURE_END(name)
+#define TIME_MEASURE_DBG(name)
+#endif
