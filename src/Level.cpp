@@ -7,11 +7,12 @@ Level::Level() {
 void Level::generate() {
     for (uint8_t x = 0; x < chunksCount; x++) {
         for (uint8_t z = 0; z < chunksCount; z++) {
-            m_chunks.push_back(std::make_shared<Chunk>(ChunkPos {x, z}, this));
+            m_chunks.insert({{x,z}, std::make_shared<Chunk>(ChunkPos {x, z}, this)});
+            // m_chunks.push_back(std::make_shared<Chunk>(ChunkPos {x, z}, this));
         }
     }
 
-    for (const auto& chunk : m_chunks) {
+    for (const auto& [pos, chunk] : m_chunks) {
         chunk->calcLightDepths();
         chunk->generateMesh();
     }
@@ -22,18 +23,20 @@ bool Level::isSolidTile(const BlockPos& pos) {
 }
 
 void Level::render() {
-    for (const auto& chunk : m_chunks) {
+    for (const auto& [pos, chunk] : m_chunks) {
         chunk->render();
     }
 }
 
 std::shared_ptr<Chunk> Level::getChunk(const ChunkPos& pos) {
-    for (const auto& chunk : m_chunks) {
-        if (chunk->getPos() == pos)
-            return chunk;
-    }
+    // for (const auto& chunk : m_chunks) {
+    //     if (chunk->getPos() == pos)
+    //         return chunk;
+    // }
 
-    return nullptr;
+    // return nullptr;
+    
+    return m_chunks.count(pos) != 0 ? m_chunks[pos] : nullptr;
 }
 
 std::shared_ptr<Chunk> Level::getChunk(const BlockPos& pos) {

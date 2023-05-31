@@ -20,5 +20,6 @@ class Level {
     vector<std::shared_ptr<AABB>> getCubes(std::shared_ptr<AABB> other);
 
   private:
-    std::vector<std::shared_ptr<Chunk>> m_chunks;
+    std::unordered_map<ChunkPos, std::shared_ptr<Chunk>> m_chunks;
+    // std::vector<std::shared_ptr<Chunk>> m_chunks;
 };

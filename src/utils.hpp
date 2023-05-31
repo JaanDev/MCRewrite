@@ -55,8 +55,18 @@ struct ChunkPos {
     int32_t x;
     int32_t z;
 
-    bool operator==(const ChunkPos& other) {
+    bool operator==(const ChunkPos& other) const {
         return x == other.x && z == other.z;
+    }
+};
+
+template <>
+struct std::hash<ChunkPos> {
+    size_t operator()(const ChunkPos& p) const {
+        using std::hash;
+
+        return hash<int32_t>()(p.x) ^ (hash<int32_t>()(p.z) << 1);
+        // return ((hash<string>()(k.first) ^ (hash<string>()(k.second) << 1)) >> 1) ^ (hash<int>()(k.third) << 1);
     }
 };
 
@@ -175,7 +185,9 @@ inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
 #ifdef DO_TIME_MEASURING
 #define TIME_MEASURE_BEGIN(name) auto name##_begin = std::chrono::system_clock::now();
 #define TIME_MEASURE_END(name) auto name##_end = std::chrono::system_clock::now();
-#define TIME_MEASURE_DBG(name) logD("Time measure for " #name ": {} millis", std::chrono::duration_cast<std::chrono::microseconds>(name##_end - name##_begin).count() / 1000.f);
+#define TIME_MEASURE_DBG(name)                                                                                                             \
+    logD("Time measure for " #name ": {} millis",                                                                                          \
+         std::chrono::duration_cast<std::chrono::microseconds>(name##_end - name##_begin).count() / 1000.f);
 #else
 #define TIME_MEASURE_BEGIN(name)
 #define TIME_MEASURE_END(name)
