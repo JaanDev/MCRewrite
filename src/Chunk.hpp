@@ -1,6 +1,7 @@
 #pragma once
 #include "includes.hpp"
 #include "Level.hpp"
+#include "HitResult.hpp"
 
 class Level;
 
@@ -20,6 +21,7 @@ class Chunk {
     void calcLightDepths();
     Mesh* getMesh();
     Model* getModel();
+    void cameraLook(Ray ray, HitResult& coll);
 
   private:
     void generate();

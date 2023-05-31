@@ -2,13 +2,10 @@
 #include "Level.hpp"
 #include "Player.hpp"
 #include "Timer.hpp"
+#include "HitResult.hpp"
 // #include "rcamera.h"
 
-struct HitResult {
-    RayCollision coll;
-    Faces face;
-    BlockPos blockPos;
-};
+using namespace std::chrono;
 
 int main() {
     SetRandomSeed(time(0));
@@ -22,6 +19,12 @@ int main() {
     InitWindow(winW, winH, "Minecraft rd-132211");
     // SetTargetFPS(60);
     SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
+
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    auto txtSize = MeasureText2("Please wait...", 30);
+    DrawText("Please wait...", winW / 2 - txtSize.x / 2, winH / 2 - txtSize.y / 2, 30, GRAY);
+    EndDrawing();
 
     glEnable(GL_TEXTURE_2D);
     glShadeModel(GL_SMOOTH);
@@ -49,6 +52,9 @@ int main() {
     UploadMesh(&plane, false);
     auto planeModel = LoadModelFromMesh(plane);
 
+    auto lastTime = system_clock::now();
+    size_t frames = 0;
+
     while (!WindowShouldClose()) {
         timer->advanceTime();
 
@@ -70,39 +76,34 @@ int main() {
 
         // block selection
 
-        auto chunk = lvl->getChunk({(int)playerPos.x, (int)playerPos.y, (int)playerPos.z});
-        if (chunk) {
-            auto model = chunk->getModel();
-            auto ray = cam.GetViewRay();
-            coll.coll = GetRayCollisionMesh(ray, chunk->getModel()->meshes[0],
-                                            MatrixTranslate(chunk->getPos().x * chunkSize, 0.f, chunk->getPos().z * chunkSize));
-            if (coll.coll.hit) {
-                auto normal = coll.coll.normal;
-                if (normal == Vector3 {0, 1, 0})
-                    coll.face = Faces::Up;
-                else if (normal == Vector3 {0, -1, 0})
-                    coll.face = Faces::Down;
-                else if (normal == Vector3 {1, 0, 0})
-                    coll.face = Faces::Left;
-                else if (normal == Vector3 {-1, 0, 0})
-                    coll.face = Faces::Right;
-                else if (normal == Vector3 {0, 0, 1})
-                    coll.face = Faces::Back;
-                else if (normal == Vector3 {0, 0, -1})
-                    coll.face = Faces::Front;
+        // auto chunk = lvl->getChunk({(int)playerPos.x, (int)playerPos.y, (int)playerPos.z});
+        // if (chunk) {
+        //     chunk->cameraLook(cam.GetViewRay(), coll);
+        // } else {
+        //     coll.coll.hit = false;
+        // }
 
-                auto pos = coll.coll.point;
-                coll.blockPos = {static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(pos.z)};
+        auto camRay = cam.GetViewRay();
 
-                if (coll.face == Faces::Up)
-                    coll.blockPos.y--;
-                if (coll.face == Faces::Back)
-                    coll.blockPos.z--;
-                if (coll.face == Faces::Left)
-                    coll.blockPos.x--;
+        coll.coll.hit = false;
+        auto plBlockPos = BlockPos {(int)playerPos.x, (int)playerPos.y, (int)playerPos.z};
+        auto chunkPos = plBlockPos.chunkPos();
+        vector<std::shared_ptr<Chunk>> chunksAroundPlayer;
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {0, 0}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {1, 0}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {0, 1}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {1, 1}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {-1, 0}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {0, -1}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {-1, -1}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {1, -1}));
+        chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {-1, 1}));
+        for (const auto& chunk : chunksAroundPlayer) {
+            if (chunk){
+                chunk->cameraLook(camRay, coll);
+                if (coll.coll.hit) break;
             }
-        } else {
-            coll.coll.hit = false;
+
         }
 
         if (coll.coll.hit) {
@@ -112,7 +113,7 @@ int main() {
 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                 lvl->setTile(coll.blockPos + BlockPos {(int)coll.coll.normal.x, (int)coll.coll.normal.y, (int)coll.coll.normal.z},
-                             coll.blockPos.y == surfaceLevel - 1 ? BlockTypes::Grass : BlockTypes::Rock);
+                             coll.blockPos.y + (int)coll.coll.normal.y == surfaceLevel ? BlockTypes::Grass : BlockTypes::Rock);
             }
         }
 
@@ -137,47 +138,23 @@ int main() {
         DrawRay({{0, 0, 0}, {0, 0, 1}}, BLUE);  // z
 
         if (coll.coll.hit) {
-            // DrawSphere(coll.coll.point, .2f, RED);
             auto millis =
                 std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
             auto col = Color {255, 255, 255, static_cast<uint8_t>((sin(millis / 100.0) * .2f + .4f) * 255.f)};
-            // DrawPlane(coll.blockPos + Vector3 {0.5f, 1.01f, 0.5f}, {1.f, 1.f},
-            //           {255, 255, 255, static_cast<uint8_t>((sin(millis / 100.0) * .2f + .4f) * 255.f)});
             drawFace(coll.blockPos, coll.face, col);
-            // Vector3 pos, axis;
-            // switch(coll.face) {
-            //     case Faces::Up:
-            //         pos = coll.blockPos + Vector3 {0, 1, 0};
-            //         axis = {0, 0, 0};
-            //         break;
-            //     case Faces::Down:
-            //         pos = coll.blockPos + Vector3 {0, 0, 0};
-            //         axis = {0, 0, 0};
-            //         break;
-            //     case Faces::Left:
-            //         pos = coll.blockPos + Vector3 {1, 0, 0};
-            //         axis = {1, 0, 0};
-            //         break;
-            //     case Faces::Right:
-            //         pos = coll.blockPos + Vector3 {0, 0, 0};
-            //         axis = {-1, 0, 0};
-            //         break;
-            //     case Faces::Front:
-            //         pos = coll.blockPos + Vector3 {0.5, 0.5, 0};
-            //         axis = {1, 0, 0};
-            //         break;
-            //     case Faces::Back:
-            //         pos = coll.blockPos + Vector3 {0, 0, 1};
-            //         axis = {0, 0, -1};
-            //         break;
-            // }
-            // DrawModelEx(planeModel, pos, axis, 90.f, {1.f, 1.f, 1.f}, col);
         }
 
         cam.EndMode3D();
 
         DrawFPS(0, 0);
         EndDrawing();
+
+        frames++;
+        if (system_clock::now() - lastTime >= 1s) {
+            lastTime = system_clock::now();
+            logD("{} fps", frames);
+            frames = 0;
+        }
     }
 
     UnloadModel(planeModel);

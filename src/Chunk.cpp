@@ -335,3 +335,32 @@ Mesh* Chunk::getMesh() {
 Model* Chunk::getModel() {
     return &m_model;
 }
+
+void Chunk::cameraLook(Ray ray, HitResult& coll) {
+    coll.coll = GetRayCollisionMesh(ray, m_model.meshes[0], MatrixTranslate(m_pos.x * chunkSize, 0.f, m_pos.z * chunkSize));
+    if (coll.coll.hit) {
+        auto normal = coll.coll.normal;
+        if (normal == Vector3 {0, 1, 0})
+            coll.face = Faces::Up;
+        else if (normal == Vector3 {0, -1, 0})
+            coll.face = Faces::Down;
+        else if (normal == Vector3 {1, 0, 0})
+            coll.face = Faces::Left;
+        else if (normal == Vector3 {-1, 0, 0})
+            coll.face = Faces::Right;
+        else if (normal == Vector3 {0, 0, 1})
+            coll.face = Faces::Back;
+        else if (normal == Vector3 {0, 0, -1})
+            coll.face = Faces::Front;
+
+        auto pos = coll.coll.point;
+        coll.blockPos = {static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(pos.z)};
+
+        if (coll.face == Faces::Up)
+            coll.blockPos.y--;
+        if (coll.face == Faces::Back)
+            coll.blockPos.z--;
+        if (coll.face == Faces::Left)
+            coll.blockPos.x--;
+    }
+}

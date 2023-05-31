@@ -7,8 +7,7 @@ Level::Level() {
 void Level::generate() {
     for (uint8_t x = 0; x < chunksCount; x++) {
         for (uint8_t z = 0; z < chunksCount; z++) {
-            m_chunks.insert({{x,z}, std::make_shared<Chunk>(ChunkPos {x, z}, this)});
-            // m_chunks.push_back(std::make_shared<Chunk>(ChunkPos {x, z}, this));
+            m_chunks.insert({{x, z}, std::make_shared<Chunk>(ChunkPos {x, z}, this)});
         }
     }
 
@@ -29,19 +28,11 @@ void Level::render() {
 }
 
 std::shared_ptr<Chunk> Level::getChunk(const ChunkPos& pos) {
-    // for (const auto& chunk : m_chunks) {
-    //     if (chunk->getPos() == pos)
-    //         return chunk;
-    // }
-
-    // return nullptr;
-    
     return m_chunks.count(pos) != 0 ? m_chunks[pos] : nullptr;
 }
 
 std::shared_ptr<Chunk> Level::getChunk(const BlockPos& pos) {
-    return getChunk(
-        ChunkPos {static_cast<int32_t>(floorf(pos.x / (float)chunkSize)), static_cast<int32_t>(floorf(pos.z / (float)chunkSize))});
+    return getChunk(pos.chunkPos());
 }
 
 BlockTypes Level::getBlock(const BlockPos& pos) {
@@ -70,7 +61,6 @@ void Level::setTile(const BlockPos& pos, BlockTypes type) {
     chunk->generateMesh();
 
     auto localPos = pos.local();
-    // logD("localpos {} {} {} chunkpos {} {}", localPos.x, localPos.y, localPos.z, chunkPos.x, chunkPos.z);
 
     if (localPos.x == 0) {
         if (auto c = getChunk(ChunkPos {chunkPos.x - 1, chunkPos.z}))

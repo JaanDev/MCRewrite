@@ -21,5 +21,4 @@ class Level {
 
   private:
     std::unordered_map<ChunkPos, std::shared_ptr<Chunk>> m_chunks;
-    // std::vector<std::shared_ptr<Chunk>> m_chunks;
 };

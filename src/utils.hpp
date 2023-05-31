@@ -4,7 +4,7 @@
 
 const int chunkSize = 16;    // x and z
 const int chunkHeight = 256; // y
-const int chunksCount = 8;
+const int chunksCount = 16;
 
 const int surfaceLevel = 170; // surface level
 
@@ -14,6 +14,19 @@ enum class BlockTypes : uint8_t {
     Air = 0,
     Rock,
     Grass,
+};
+
+struct ChunkPos {
+    int32_t x;
+    int32_t z;
+
+    bool operator==(const ChunkPos& other) const {
+        return x == other.x && z == other.z;
+    }
+
+    ChunkPos operator+(const ChunkPos& other) const {
+        return {x + other.x, z + other.z};
+    }
 };
 
 struct BlockPos {
@@ -49,14 +62,9 @@ struct BlockPos {
     bool isInChunk() const {
         return x >= 0 && x < chunkSize && y >= 0 && y < chunkHeight && z >= 0 && z < chunkSize;
     }
-};
 
-struct ChunkPos {
-    int32_t x;
-    int32_t z;
-
-    bool operator==(const ChunkPos& other) const {
-        return x == other.x && z == other.z;
+    ChunkPos chunkPos() const {
+        return ChunkPos {static_cast<int32_t>(floorf(x / (float)chunkSize)), static_cast<int32_t>(floorf(z / (float)chunkSize))};
     }
 };
 
@@ -66,7 +74,6 @@ struct std::hash<ChunkPos> {
         using std::hash;
 
         return hash<int32_t>()(p.x) ^ (hash<int32_t>()(p.z) << 1);
-        // return ((hash<string>()(k.first) ^ (hash<string>()(k.second) << 1)) >> 1) ^ (hash<int>()(k.third) << 1);
     }
 };
 
@@ -126,7 +133,7 @@ enum class Faces {
 };
 
 inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
-    const float awayFromBlock = .003f;
+    const float awayFromBlock = .004f;
 
     float x0 = blockPos.x;
     float y0 = blockPos.y;
@@ -193,3 +200,19 @@ inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
 #define TIME_MEASURE_END(name)
 #define TIME_MEASURE_DBG(name)
 #endif
+
+inline Vector2 MeasureText2(const char* text, int fontSize) {
+    Vector2 textSize = {0.0f, 0.0f};
+
+    // Check if default font has been loaded
+    if (GetFontDefault().texture.id != 0) {
+        int defaultFontSize = 10; // Default Font chars height in pixel
+        if (fontSize < defaultFontSize)
+            fontSize = defaultFontSize;
+        int spacing = fontSize / defaultFontSize;
+
+        textSize = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)spacing);
+    }
+
+    return textSize;
+}
