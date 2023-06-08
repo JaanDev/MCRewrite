@@ -6,6 +6,7 @@ This branch version is rd-132211.
 - [ ] Lighting (probably using a depth buffer)
 - [ ] Optimizations for camera ray hitting
 - [ ] Maybe change the camera FOV as we are using just a random value rn :skull:
+- [ ] Add frustum
 
 ## What do we want it to be?
 This is meant to be a 1:1 user experience rewrite/decompilation (the game look and gameplay must match) but the code may and does not match with the original as we are using modern C++ features and trying to improve the original code structure.
