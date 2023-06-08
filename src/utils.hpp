@@ -4,7 +4,8 @@
 
 const int chunkSize = 16;    // x and z
 const int chunkHeight = 256; // y
-const int chunksCount = 16;
+const int chunksCount = 4;
+// const int chunksCount = 16;
 
 const int surfaceLevel = 170; // surface level
 
@@ -187,7 +188,7 @@ inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
     }
 }
 
-// #define DO_TIME_MEASURING
+#define DO_TIME_MEASURING
 
 #ifdef DO_TIME_MEASURING
 #define TIME_MEASURE_BEGIN(name) auto name##_begin = std::chrono::system_clock::now();

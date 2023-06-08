@@ -21,7 +21,7 @@ class Chunk {
     void calcLightDepths();
     Mesh* getMesh();
     Model* getModel();
-    void cameraLook(Ray ray, HitResult& coll);
+    void cameraLook(Ray ray, HitResult& coll, const BlockPos& playerPos);
 
   private:
     void generate();

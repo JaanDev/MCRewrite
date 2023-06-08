@@ -18,6 +18,7 @@ ChunkPos Chunk::getPos() {
 
 uint32_t Chunk::getFaceCount() {
     TIME_MEASURE_BEGIN(GetFaceCount)
+
     uint32_t faces = 0;
 
     auto chunkXP = m_level->getChunk(ChunkPos {m_pos.x + 1, m_pos.z}); // x+
@@ -33,11 +34,11 @@ uint32_t Chunk::getFaceCount() {
 
                 if (isSolidTile(localPos)) {
                     // y+
-                    if (!isSolidTile({x, y + 1, z}))
+                    if (y == chunkHeight - 1 || !isSolidTile({x, y + 1, z}))
                         faces++;
 
                     // y-
-                    if (!isSolidTile({x, y - 1, z}))
+                    if (y == 0 || !isSolidTile({x, y - 1, z}))
                         faces++;
 
                     // z-
@@ -87,6 +88,7 @@ uint32_t Chunk::getFaceCount() {
             }
         }
     }
+
     TIME_MEASURE_END(GetFaceCount)
     TIME_MEASURE_DBG(GetFaceCount)
 
@@ -180,6 +182,11 @@ void Chunk::generateMesh() {
         col = {static_cast<uint8_t>(br * 255.f), static_cast<uint8_t>(br * 255.f), static_cast<uint8_t>(br * 255.f), 255};                 \
     }
 
+    auto chunkXP = m_level->getChunk(ChunkPos {m_pos.x + 1, m_pos.z}); // x+
+    auto chunkXM = m_level->getChunk(ChunkPos {m_pos.x - 1, m_pos.z}); // x-
+    auto chunkZP = m_level->getChunk(ChunkPos {m_pos.x, m_pos.z + 1}); // z+
+    auto chunkZM = m_level->getChunk(ChunkPos {m_pos.x, m_pos.z - 1}); // z-
+
     TIME_MEASURE_BEGIN(GenMeshLoop)
 
     for (uint8_t x = 0; x < chunkSize; x++) {
@@ -195,7 +202,7 @@ void Chunk::generateMesh() {
                     auto uv = AssetManager::sharedState()->uvForBlockType(getBlock(pos));
                     // auto uv = UV {0, 0, 1, 1};
 
-                    if (!isSolidTile({x, y + 1, z})) { // y+
+                    if (y == chunkHeight - 1 || !isSolidTile({x, y + 1, z})) { // y+
                         CALC_COL(0, 1, 0)
                         normal = {0, 1, 0};
                         ADD_VERTEX(0, 1, 0, uv.startX, uv.startY)
@@ -207,7 +214,7 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(1, 1, 0, uv.endX, uv.startY)
                     }
 
-                    if (!isSolidTile({x, y - 1, z})) { // y-
+                    if (y == 0 || !isSolidTile({x, y - 1, z})) { // y-
                         CALC_COL(0, -1, 0)
                         normal = {0, -1, 0};
                         ADD_VERTEX(1, 0, 0, uv.endX, uv.startY)
@@ -219,7 +226,8 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(0, 0, 1, uv.startX, uv.endY)
                     }
 
-                    if (!m_level->isSolidTile(globalPos + BlockPos {0, 0, 1})) { // z+
+                    if ((z == chunkSize - 1 && (!chunkZP || !chunkZP->isSolidTile({x, y, 0}))) ||
+                        (z != chunkSize - 1 && !isSolidTile({x, y, z + 1}))) { // z+
                         CALC_COL(0, 0, 1)
                         normal = {0, 0, 1};
                         ADD_VERTEX(0, 0, 1, uv.startX, uv.endY)
@@ -231,7 +239,8 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(0, 1, 1, uv.startX, uv.startY)
                     }
 
-                    if (!m_level->isSolidTile(globalPos - BlockPos {0, 0, 1})) { // z-
+                    if ((z == 0 && (!chunkZM || !chunkZM->isSolidTile({x, y, chunkSize - 1}))) ||
+                        (z != 0 && !isSolidTile({x, y, z - 1}))) { // z-
                         CALC_COL(0, 0, -1)
                         normal = {0, 0, -1};
                         ADD_VERTEX(1, 1, 0, uv.startX, uv.startY)
@@ -243,7 +252,8 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(0, 0, 0, uv.endX, uv.endY)
                     }
 
-                    if (!m_level->isSolidTile(globalPos + BlockPos {1, 0, 0})) { // x+
+                    if ((x == chunkSize - 1 && (!chunkXP || !chunkXP->isSolidTile({0, y, z}))) ||
+                        (x != chunkSize - 1 && !isSolidTile({x + 1, y, z}))) { // x+
                         CALC_COL(1, 0, 0)
                         normal = {1, 0, 0};
                         ADD_VERTEX(1, 0, 0, uv.endX, uv.endY)
@@ -255,7 +265,8 @@ void Chunk::generateMesh() {
                         ADD_VERTEX(1, 0, 1, uv.startX, uv.endY)
                     }
 
-                    if (!m_level->isSolidTile(globalPos - BlockPos {1, 0, 0})) { // x-
+                    if ((x == 0 && (!chunkXM || !chunkXM->isSolidTile({chunkSize - 1, y, z}))) ||
+                        (x != 0 && !isSolidTile({x - 1, y, z}))) { // x-
                         CALC_COL(-1, 0, 0)
                         normal = {-1, 0, 0};
                         ADD_VERTEX(0, 0, 0, uv.startX, uv.endY)
@@ -336,9 +347,25 @@ Model* Chunk::getModel() {
     return &m_model;
 }
 
-void Chunk::cameraLook(Ray ray, HitResult& coll) {
+void Chunk::cameraLook(Ray ray, HitResult& coll, const BlockPos& playerPos) {
     coll.coll = GetRayCollisionMesh(ray, m_model.meshes[0], MatrixTranslate(m_pos.x * chunkSize, 0.f, m_pos.z * chunkSize));
     if (coll.coll.hit) {
+        auto pos = coll.coll.point;
+        coll.blockPos = {static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(pos.z)};
+
+        if (coll.face == Faces::Up)
+            coll.blockPos.y--;
+        if (coll.face == Faces::Back)
+            coll.blockPos.z--;
+        if (coll.face == Faces::Left)
+            coll.blockPos.x--;
+
+        if (std::abs(playerPos.x - coll.blockPos.x) > 4 || std::abs(playerPos.y - coll.blockPos.y) > 4 ||
+            std::abs(playerPos.z - coll.blockPos.z) > 4) {
+            coll.coll.hit = false;
+            return;
+        }
+
         auto normal = coll.coll.normal;
         if (normal == Vector3 {0, 1, 0})
             coll.face = Faces::Up;
@@ -352,15 +379,5 @@ void Chunk::cameraLook(Ray ray, HitResult& coll) {
             coll.face = Faces::Back;
         else if (normal == Vector3 {0, 0, -1})
             coll.face = Faces::Front;
-
-        auto pos = coll.coll.point;
-        coll.blockPos = {static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(pos.z)};
-
-        if (coll.face == Faces::Up)
-            coll.blockPos.y--;
-        if (coll.face == Faces::Back)
-            coll.blockPos.z--;
-        if (coll.face == Faces::Left)
-            coll.blockPos.x--;
     }
 }

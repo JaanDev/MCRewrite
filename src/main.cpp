@@ -18,7 +18,7 @@ int main() {
     // SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(winW, winH, "Minecraft rd-132211");
     // SetTargetFPS(60);
-    SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
+    // SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
@@ -30,8 +30,10 @@ int main() {
     glShadeModel(GL_SMOOTH);
     glClearColor(.5f, .8f, 1.f, 0.f);
     glClearDepth(1.0);
-    glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
     // glMatrixMode(5889);
     // glLoadIdentity();
     // glMatrixMode(5888);
@@ -45,12 +47,7 @@ int main() {
     auto player = std::make_shared<Player>(lvl);
     auto timer = std::make_shared<Timer>(60.f);
 
-    // RayCollision collision;
     HitResult coll;
-
-    auto plane = GenMeshPlane(1.f, 1.f, 1, 1);
-    UploadMesh(&plane, false);
-    auto planeModel = LoadModelFromMesh(plane);
 
     auto lastTime = system_clock::now();
     size_t frames = 0;
@@ -75,19 +72,13 @@ int main() {
         cam.setTarget(cam.GetCamera().position + target);
 
         // block selection
-
-        // auto chunk = lvl->getChunk({(int)playerPos.x, (int)playerPos.y, (int)playerPos.z});
-        // if (chunk) {
-        //     chunk->cameraLook(cam.GetViewRay(), coll);
-        // } else {
-        //     coll.coll.hit = false;
-        // }
-
         auto camRay = cam.GetViewRay();
 
         coll.coll.hit = false;
         auto plBlockPos = BlockPos {(int)playerPos.x, (int)playerPos.y, (int)playerPos.z};
         auto chunkPos = plBlockPos.chunkPos();
+
+        // TODO: rework this ._.
         vector<std::shared_ptr<Chunk>> chunksAroundPlayer;
         chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {0, 0}));
         chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {1, 0}));
@@ -99,11 +90,11 @@ int main() {
         chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {1, -1}));
         chunksAroundPlayer.push_back(lvl->getChunk(chunkPos + ChunkPos {-1, 1}));
         for (const auto& chunk : chunksAroundPlayer) {
-            if (chunk){
-                chunk->cameraLook(camRay, coll);
-                if (coll.coll.hit) break;
+            if (chunk) {
+                chunk->cameraLook(camRay, coll, plBlockPos);
+                if (coll.coll.hit)
+                    break;
             }
-
         }
 
         if (coll.coll.hit) {
@@ -119,10 +110,9 @@ int main() {
 
         BeginDrawing();
 
-        ClearBackground({127, 204, 255});
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         cam.BeginMode3D();
-
+        glEnable(GL_CULL_FACE);
         glEnable(GL_FOG);
         glFogi(GL_FOG_MODE, 2048);
         glFogf(GL_FOG_DENSITY, .2f);
@@ -130,12 +120,10 @@ int main() {
 
         lvl->render();
 
-        glDisable(GL_FOG);
-
-        DrawGrid(10, 1);
-        DrawRay({{0, 0, 0}, {1, 0, 0}}, RED);   // x
-        DrawRay({{0, 0, 0}, {0, 1, 0}}, GREEN); // y
-        DrawRay({{0, 0, 0}, {0, 0, 1}}, BLUE);  // z
+        // DrawGrid(10, 1);
+        // DrawRay({{0, 0, 0}, {1, 0, 0}}, RED);   // x
+        // DrawRay({{0, 0, 0}, {0, 1, 0}}, GREEN); // y
+        // DrawRay({{0, 0, 0}, {0, 0, 1}}, BLUE);  // z
 
         if (coll.coll.hit) {
             auto millis =
@@ -144,9 +132,12 @@ int main() {
             drawFace(coll.blockPos, coll.face, col);
         }
 
+        glDisable(GL_FOG);
+
         cam.EndMode3D();
 
         DrawFPS(0, 0);
+
         EndDrawing();
 
         frames++;
@@ -157,7 +148,6 @@ int main() {
         }
     }
 
-    UnloadModel(planeModel);
     CloseWindow();
     return 0;
 }
