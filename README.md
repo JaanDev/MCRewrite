@@ -31,10 +31,10 @@ cmake --build build
 ```
 Or just open the folder in VS Code/Visual Studio (don't forget the CMake extension for VS Code) and build it from there.
 
-### Contributions
+## Contributions
 The contributions are always welcomed! :<zero-width space>)
 
-### Our contacts
+## Our contacts
 Discord:
 * Jaan#2897
 * Kolyah35#0107
