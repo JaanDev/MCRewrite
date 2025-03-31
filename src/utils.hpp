@@ -20,6 +20,10 @@ struct Vertex {
     float u, v;
 };
 
+inline float randomFloat(float begin, float end) {
+    return begin + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (end - begin)));
+}
+
 enum class Faces {
     Up,    // y+
     Down,  // y-

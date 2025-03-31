@@ -10,7 +10,7 @@
 
 Game::Game() {}
 
-int Game::start() {
+int Game::run() {
     static bool hasStarted = false;
 
     if (hasStarted) {
@@ -62,6 +62,9 @@ int Game::start() {
 
     int frames = 0;
     auto lastTime = std::chrono::steady_clock::now();
+    glm::dvec2 prevMouse;
+    glfwGetCursorPos(m_window, &prevMouse.x, &prevMouse.y);
+    glm::dvec2 mouse;
 
     while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
         timer.advanceTime();
@@ -70,8 +73,6 @@ int Game::start() {
             player.tick();
         }
 
-        glm::dvec2 mouse;
-        static glm::dvec2 prevMouse;
         
         glfwGetCursorPos(m_window, &mouse.x, &mouse.y);
         

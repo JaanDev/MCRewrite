@@ -15,7 +15,7 @@ AlignArrayOfStructures: None
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakTemplateDeclarations: Yes
 PointerAlignment: Left
 QualifierAlignment: Left
@@ -73,7 +73,7 @@ RemoveBracesLLVM: false
 # RemoveEmptyLinesInUnwrappedLines: true
 RemoveParentheses: MultipleParentheses
 RemoveSemicolon: true
-SeparateDefinitionBlocks: Always
+# SeparateDefinitionBlocks: Always
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false

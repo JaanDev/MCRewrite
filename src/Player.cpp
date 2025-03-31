@@ -103,7 +103,7 @@ void Player::move(const glm::vec3& delta) {
 void Player::moveRelative(float xa, float za, float speed) {
     glm::vec2 input(xa, za);
 
-    if (glm::length(input) < 0.01f) return;
+    if (glm::length(input) < 0.1f) return;
 
     input = glm::normalize(input) * speed;
 

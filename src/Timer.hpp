@@ -2,12 +2,13 @@
 #include <chrono>
 
 class Timer {
-public:
+  public:
     Timer(float ticksPerSecond);
     void advanceTime();
-    uint32_t getTicks();
+    inline uint32_t getTicks() const { return m_ticks; }
+    inline float getPartialTicks() const { return m_partialTicks; }
 
-private:
+  private:
     int64_t getNanos();
 
     std::chrono::high_resolution_clock m_clock;
@@ -16,4 +17,5 @@ private:
     float m_passedTime;
     float m_timeScale;
     uint32_t m_ticks;
+    float m_partialTicks;
 };
