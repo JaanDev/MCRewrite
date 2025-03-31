@@ -82,13 +82,13 @@ int Game::start() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.05f, 1000.0f);
-        auto rot = player.getRot();
+        auto rot = glm::radians(player.getRot());
         auto pos = player.getPos();
 
         glm::vec3 direction = glm::vec3(
-            cos(glm::radians(rot.x)) * cos(glm::radians(rot.y)), 
-            sin(glm::radians(rot.y)), 
-            sin(glm::radians(rot.x)) * cos(glm::radians(rot.y))
+            cos(rot.x) * cos(rot.y), 
+            sin(rot.y), 
+            sin(rot.x) * cos(rot.y)
         );
         glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y - 0.3f, pos.z);
         glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
