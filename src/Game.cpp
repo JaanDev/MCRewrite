@@ -57,7 +57,7 @@ int Game::start() {
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Timer timer(60);
-    Level level;
+    Level level(256, 256, 64);
     Player player(level);
 
     int frames = 0;

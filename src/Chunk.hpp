@@ -1,34 +1,28 @@
 #pragma once
-
-class Level;
+#include <AABB.hpp>
+#include <Level.hpp>
+#include <utils.hpp>
+#include <glad/glad.h>
+#include <vector>
 
 class Chunk {
-  public:
-    // Chunk(const ChunkPos& pos, Level* level);
-    // ~Chunk();
+public:
+    Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max);
 
-    // // in local space
-    // bool isSolidTile(const BlockPos& pos);
-    // void render();
-    // ChunkPos getPos();
-    // void generateMesh();
-    // BlockTypes getBlock(const BlockPos& pos);
-    // void setBlock(const BlockPos& pos, BlockTypes type);
-    // float getBrightness(const BlockPos& pos);
-    // void calcLightDepths();
-    // Mesh* getMesh();
-    // Model* getModel();
-    // void cameraLook(Ray ray, HitResult& coll, const BlockPos& playerPos);
+    void render();
+    void generateMesh();
+    void renderTile(const glm::ivec3& pos, int tileID);
+    void addFace(const glm::vec3& pos, Faces face, int tileID);
 
-  private:
-    // void generate();
-    // uint32_t getFaceCount();
-    // void unload();
+    inline void rebuild() { m_built = false; }
+    inline const AABB getBounds() { return AABB(m_min, m_max); }
 
-    // ChunkPos m_pos;
-    // Level* m_level;
-    // std::array<std::array<float, chunkSize>, chunkSize> m_lightDephts;
-    // Mesh m_mesh;
-    // Model m_model;
-    // bool m_built;
+private:
+    Level& m_level;
+    glm::ivec3 m_min;
+    glm::ivec3 m_max;
+    bool m_built;
+    std::vector<float> m_vertices;
+    GLuint m_vao;
+    GLuint m_vbo;
 };

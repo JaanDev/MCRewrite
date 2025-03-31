@@ -6,7 +6,7 @@ Player::Player(Level& level)
     : m_level(level), m_pos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
 
 void Player::resetPos() {
-    // setPos({rand() % m_level.getWidth(), m_level.getDepth() + 3, rand() % m_level.getHeight()});
+    setPos({rand() % m_level.getWidth(), m_level.getDepth() + 3, rand() % m_level.getHeight()});
 }
 
 void Player::setPos(const glm::vec3& pos) {
@@ -20,7 +20,6 @@ void Player::setPos(const glm::vec3& pos) {
 void Player::turn(const glm::vec2& delta) {
     m_rot += delta * 0.15f;
     m_rot.y = std::clamp(m_rot.y, -89.f, 89.f); // using 89.9 feels like a cheat but im too lazy to make it better =)
-    // m_rot.x = std::fmod(m_rot.x, 360.f);
 }
 
 void Player::tick() {
@@ -55,7 +54,7 @@ void Player::tick() {
 
     moveRelative(forward, vertical, m_onGround ? .02f : .005f);
 
-    // m_motion.y -= .005f;
+    m_motion.y -= .005f;
     
     move(m_motion);
     

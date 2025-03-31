@@ -1,50 +1,68 @@
 #include "Level.hpp"
+#include <Frustum.hpp>
+#include <Chunk.hpp>
 
-Level::Level() {
-    // generate();
+Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height) {
+    // Fill level with tiles
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < depth; y++) {
+            for (int z = 0; z < height; z++) {
+                // Calculate index from x, y and z
+                int index = (y * m_height + z) * m_width + x;
+
+                // Fill level with tiles
+                m_blocks[index] = (uint8_t)((y <= depth * 2 / 3) ? 1 : 0);
+            }
+        }
+    }
+
+    calcLightDepths(0, 0, width, height);
 }
 
-// void Level::generate() {
-//     for (uint8_t x = 0; x < chunksCount; x++) {
-//         for (uint8_t z = 0; z < chunksCount; z++) {
-//             m_chunks.insert({{x, z}, std::make_shared<Chunk>(ChunkPos {x, z}, this)});
-//         }
-//     }
+bool Level::isSolidTile(glm::ivec3 pos) {
+    if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= m_width || pos.y >= m_depth || pos.z >= m_height) {
+        return false;
+    }
 
-//     for (const auto& [pos, chunk] : m_chunks) {
-//         chunk->calcLightDepths();
-//         chunk->generateMesh();
-//     }
-// }
+    int index = (pos.y * m_height + pos.z) * m_width + pos.x;
 
-// bool Level::isSolidTile(glm::ivec3 pos) {
-//     return getBlock(pos) != BlockTypes::Air;
-// }
+    return m_blocks[index] != 0;
+}
 
-// void Level::render() {
-//     for (const auto& chunk : m_chunks) {
-//         chunk->render();
-//     }
-// }
+void Level::render() {
+    auto frustum = Frustum::get();
 
-// std::shared_ptr<Chunk> Level::getChunk(const ChunkPos& pos) {
-//     return m_chunks.count(pos) != 0 ? m_chunks[pos] : nullptr;
-// }
+    for (const auto& chunk : m_chunks) {
+        if (frustum->cubeInFrustum(chunk->getBounds())) {
+            chunk->render();
+        }
+    }
+}
 
-// std::shared_ptr<Chunk> Level::getChunk(const BlockPos& pos) {
-//     return getChunk(pos.chunkPos());
-// }
+void Level::calcLightDepths(int minX, int minZ, int maxX, int maxZ) {
+    for (int x = minX; x < minX + maxX; x++) {
+        for (int z = minZ; z < minZ + maxZ; z++) {
+            int prevDepth = m_lightDepths[x + z * m_width];
 
-// BlockTypes Level::getBlock(const BlockPos& pos) {
-//     if (pos.y >= chunkHeight)
-//         return BlockTypes::Air;
+            int depth = m_depth - 1;
+            while (depth > 0 && !isSolidTile(glm::vec3(x, m_depth, z))) {
+                depth--;
+            }
 
-//     auto chunk = getChunk(pos);
-//     if (!chunk)
-//         return BlockTypes::Air;
+            m_lightDepths[x + z * m_width] = depth;
 
-//     return chunk->getBlock(pos.local());
-// }
+            if (prevDepth != depth) {
+                int minTileChangeY = std::min(prevDepth, depth);
+                int maxTileChangeY = std::max(prevDepth, depth);
+
+                // // Notify tile column changed
+                // for (auto& levelListener : m_levelListeners) {
+                //     levelListener->lightColumnChanged(x, z, minTileChangeY, maxTileChangeY);
+                // }
+            }
+        }
+    }
+}
 
 // void Level::setTile(const BlockPos& pos, BlockTypes type) {
 //     if (pos.y >= chunkHeight)
@@ -77,16 +95,20 @@ Level::Level() {
 //             c->generateMesh();
 // }
 
-// float Level::getBrightness(const BlockPos& pos) {
-//     if (pos.y >= chunkHeight)
-//         return 1.f;
+float Level::getBrightness(const glm::ivec3& pos) {
+    float dark = 0.8f;
+    float light = 1.0f;
 
-//     auto chunk = getChunk(pos);
-//     if (!chunk)
-//         return 1.f;
+    if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= m_width || pos.y >= m_depth || pos.z >= m_height) {
+        return light;
+    }
 
-//     return chunk->getBrightness(pos.local());
-// }
+    if (pos.y < m_lightDepths[pos.x + pos.z * m_width]) {
+        return dark;
+    }
+
+    return light;
+}
 
 std::vector<AABB> Level::getCubes(const AABB& other) {
     std::vector<AABB> aabbs;

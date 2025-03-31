@@ -1,28 +1,38 @@
 #pragma once
-#include <Chunk.hpp>
 #include <AABB.hpp>
 
 #include <vector>
 #include <memory>
 
+#include <utils.hpp>
+
 class Chunk;
 
 class Level {
 public:
-    Level();
+    Level(int width, int height, int depth);
 
-    // void render();
-    // void generate();
+    void render();
 
-    // bool isSolidTile(glm::ivec3 pos);
+    bool isSolidTile(glm::ivec3 pos);
+    void calcLightDepths(int minX, int minZ, int maxX, int maxZ);
 
-    // std::shared_ptr<Chunk> getChunk(glm::ivec3 pos);
     // BlockTypes getBlock(glm::ivec3 pos);
 
     // void setTile(glm::ivec3 pos, BlockTypes type);
-    // float getBrightness(glm::ivec3 pos);
+    float getBrightness(const glm::ivec3& pos);
     std::vector<AABB> getCubes(const AABB& other);
 
+    auto getWidth() const { return m_width; }
+    auto getHeight() const { return m_height; }
+    auto getDepth() const { return m_depth; }
+
 private:
+    std::vector<uint8_t> m_blocks;
+    std::vector<int> m_lightDepths;
     std::vector<std::shared_ptr<Chunk>> m_chunks;
+
+    int m_width;
+    int m_height;
+    int m_depth;
 };
