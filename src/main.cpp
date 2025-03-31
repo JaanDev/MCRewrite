@@ -38,7 +38,6 @@ int main() {
     // // SetTargetFPS(60);
     // // SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
 
-
     // glEnable(GL_TEXTURE_2D);
     // glShadeModel(GL_SMOOTH);
     // glClearColor(.5f, .8f, 1.f, 0.f);

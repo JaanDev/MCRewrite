@@ -1,20 +1,26 @@
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+SpacesBeforeTrailingComments: 1
+AlignConsecutiveMacros: Consecutive
+# AlignEscapedNewlines: LeftWithLastLine
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Never
+AllowShortLambdasOnASingleLine: Empty
 IndentWidth: 4
-ColumnLimit: 140
+ColumnLimit: 180
 UseTab: Never
-AllowShortIfStatementsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: Never
 UseCRLF: false
 AlignArrayOfStructures: None
-# AlignArrayOfStructures: Left
-# AlignConsecutiveAssignments: Consecutive
-AlignTrailingComments: true
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
 PointerAlignment: Left
 QualifierAlignment: Left
+ReferenceAlignment: Left
+# ReflowComments: IndentOnly
 SpaceAroundPointerQualifiers: Before
 SpaceBeforeCaseColon: false
 SpaceBeforeCpp11BracedList: true
@@ -28,7 +34,46 @@ SpacesInAngles: Never
 SpacesInCStyleCastParentheses: false
 SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
-SpaceAfterLogicalNot: false
-SpaceAfterTemplateKeyword: true
 NamespaceIndentation: All
 SortIncludes: Never
+AlwaysBreakBeforeMultilineStrings: false
+BinPackArguments: true
+# BinPackLongBracedList: true
+# BinPackParameters: BinPack
+BitFieldColonSpacing: Both
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: MultiLine
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+BreakAdjacentStringLiterals: true
+BreakArrays: false
+BreakStringLiterals: true
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: LogicalBlock
+IndentAccessModifiers: false
+IndentPPDirectives: BeforeHash
+InsertBraces: true
+# KeepEmptyLines:
+#   AtEndOfFile: false
+#   AtStartOfBlock: false
+#   AtStartOfFile: false
+LineEnding: LF
+PPIndentWidth: 4
+PackConstructorInitializers: BinPack
+RemoveBracesLLVM: false
+# RemoveEmptyLinesInUnwrappedLines: true
+RemoveParentheses: MultipleParentheses
+RemoveSemicolon: true
+SeparateDefinitionBlocks: Always
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false

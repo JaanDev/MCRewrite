@@ -1,5 +1,5 @@
 # MCRewrite
-An open source Minecraft Java Edition rewrite in C++ using raylib.
+An open source Minecraft Java Edition rewrite in C++ using raylib.  
 This branch version is rd-132211.
 
 This is currently being rewritten from scratch!
