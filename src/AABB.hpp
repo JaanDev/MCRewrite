@@ -2,7 +2,7 @@
 #include "includes.hpp"
 
 class AABB {
-  public:
+public:
     AABB(const Vector3& pos0, const Vector3& pos1);
     std::shared_ptr<AABB> expand(const Vector3& size);
     std::shared_ptr<AABB> grow(const Vector3& size);
