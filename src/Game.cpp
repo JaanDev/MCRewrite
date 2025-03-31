@@ -1,6 +1,12 @@
 #include "Game.hpp"
 #include <cmath>
 #include <ctime>
+#include <Timer.hpp>
+#include <Level.hpp>
+#include <Player.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Game::Game() {}
 
@@ -49,6 +55,114 @@ int Game::start() {
     glDepthFunc(GL_LEQUAL);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    Timer timer(60);
+    Level level;
+    Player player(level);
+
+    int frames = 0;
+    auto lastTime = std::chrono::steady_clock::now();
+
+    while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
+        timer.advanceTime();
+
+        for (int i = 0; i < timer.getTicks(); ++i) {
+            player.tick();
+        }
+
+        glm::dvec2 mouse;
+        static glm::dvec2 prevMouse;
+        
+        glfwGetCursorPos(m_window, &mouse.x, &mouse.y);
+        
+        player.turn(glm::vec2(mouse.x - prevMouse.x, prevMouse.y - mouse.y));
+        prevMouse = mouse;
+
+        // begin render
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.05f, 1000.0f);
+        auto rot = player.getRot();
+        auto pos = player.getPos();
+
+        glm::vec3 direction = glm::vec3(
+            cos(glm::radians(rot.x)) * cos(glm::radians(rot.y)), 
+            sin(glm::radians(rot.y)), 
+            sin(glm::radians(rot.x)) * cos(glm::radians(rot.y))
+        );
+        glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y - 0.3f, pos.z);
+        glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 mvp = projection * view;
+
+        glLoadMatrixf(glm::value_ptr(mvp));
+
+        glBegin(GL_QUADS);
+    
+        // Front face
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(-0.5f, -0.5f,  0.5f);
+        glVertex3f( 0.5f, -0.5f,  0.5f);
+        glVertex3f( 0.5f,  0.5f,  0.5f);
+        glVertex3f(-0.5f,  0.5f,  0.5f);
+
+        // Back face
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f(-0.5f,  0.5f, -0.5f);
+        glVertex3f( 0.5f,  0.5f, -0.5f);
+        glVertex3f( 0.5f, -0.5f, -0.5f);
+
+        // Left face
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f(-0.5f, -0.5f,  0.5f);
+        glVertex3f(-0.5f,  0.5f,  0.5f);
+        glVertex3f(-0.5f,  0.5f, -0.5f);
+
+        // Right face
+        glColor3f(1.0f, 1.0f, 0.0f);
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glVertex3f(0.5f,  0.5f, -0.5f);
+        glVertex3f(0.5f,  0.5f,  0.5f);
+        glVertex3f(0.5f, -0.5f,  0.5f);
+
+        // Top face
+        glColor3f(1.0f, 0.0f, 1.0f);
+        glVertex3f(-0.5f,  0.5f, -0.5f);
+        glVertex3f(-0.5f,  0.5f,  0.5f);
+        glVertex3f( 0.5f,  0.5f,  0.5f);
+        glVertex3f( 0.5f,  0.5f, -0.5f);
+
+        // Bottom face
+        glColor3f(0.0f, 1.0f, 1.0f);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glVertex3f( 0.5f, -0.5f, -0.5f);
+        glVertex3f( 0.5f, -0.5f,  0.5f);
+        glVertex3f(-0.5f, -0.5f,  0.5f);
+
+        glEnd();
+
+        glfwSwapBuffers(m_window);
+        glfwPollEvents();
+        // end render
+
+        frames++;
+
+        auto currentTime = std::chrono::steady_clock::now();
+        if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() >= 1000) {
+            // std::cout << frames << " fps, " << Chunk::updates << std::endl;
+
+            // Chunk::updates = 0;
+            lastTime = currentTime;
+            frames = 0;
+        }
+    }
+
+    // level.save();
+
+    glfwDestroyWindow(m_window);
+    glfwTerminate();
+
 
     // rlFPCamera cam;
     // cam.Setup(fov, {0, 0, 0});

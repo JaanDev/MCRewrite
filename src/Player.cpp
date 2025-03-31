@@ -1,13 +1,15 @@
 #include <Player.hpp>
+#include <Game.hpp>
+#include <algorithm>
 
 Player::Player(Level& level)
-    : m_level(level), m_pos(0.f), m_aabb(0.f, 0.f), m_rot(0.f), m_moveDelta(0.f), m_onGround(false) { resetPos(); }
+    : m_level(level), m_pos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
 
 void Player::resetPos() {
-    setPos({randomFloat(0.f, chunksCount * chunkSize), surfaceLevel + 3.f, randomFloat(0.f, chunksCount * chunkSize)});
+    // setPos({rand() % m_level.getWidth(), m_level.getDepth() + 3, rand() % m_level.getHeight()});
 }
 
-void Player::setPos(glm::vec3 pos) {
+void Player::setPos(const glm::vec3& pos) {
     const float w = .3f;
     const float h = .9f;
     
@@ -15,84 +17,101 @@ void Player::setPos(glm::vec3 pos) {
     m_aabb = AABB(m_pos - glm::vec3(w, h, w), m_pos + glm::vec3(w, h, w));
 }
 
-void Player::turn(const Vector2& delta) {
-    m_rot += delta * 0.1f;
-    m_rot.y = std::clamp(m_rot.y, -89.9f * DEG2RAD, 89.9f * DEG2RAD); // using 89.9 feels like a cheat but im too lazy to make it better =)
+void Player::turn(const glm::vec2& delta) {
+    m_rot += delta * 0.15f;
+    m_rot.y = std::clamp(m_rot.y, -89.f, 89.f); // using 89.9 feels like a cheat but im too lazy to make it better =)
+    // m_rot.x = std::fmod(m_rot.x, 360.f);
 }
 
 void Player::tick() {
     static auto prevPos = m_pos;
-    float xa, ya;
-    xa = ya = 0.f;
+    float forward, vertical;
+    forward = vertical = 0.f;
 
-    if (IsKeyDown(KEY_R))
+    auto window = Game::get().getWindow();
+
+    if (glfwGetKey(window, GLFW_KEY_R)) {
         resetPos();
+    }
 
-    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W))
-        ya += 1.f;
+    if (glfwGetKey(window, GLFW_KEY_UP) || glfwGetKey(window, GLFW_KEY_W)) {
+        forward += 1.f;
+    }
 
-    if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
-        ya -= 1.f;
+    if (glfwGetKey(window, GLFW_KEY_DOWN) || glfwGetKey(window, GLFW_KEY_S)) {
+        forward -= 1.f;
+    }
 
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A))
-        xa += 1.f;
+    if (glfwGetKey(window, GLFW_KEY_LEFT) || glfwGetKey(window, GLFW_KEY_A)) {
+        vertical -= 1.f;
+    }
 
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D))
-        xa -= 1.f;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) || glfwGetKey(window, GLFW_KEY_D)) {
+        vertical += 1.f;
+    }
 
-    if ((IsKeyDown(KEY_SPACE) || IsKeyDown(KEY_LEFT_SUPER)) && m_onGround)
-        m_moveDelta.y = .12f;
+    if ((glfwGetKey(window, GLFW_KEY_SPACE) || glfwGetKey(window, GLFW_KEY_LEFT_SUPER)) && m_onGround)
+        m_motion.y = .12f;
 
-    moveRelative(xa, ya, m_onGround ? .02f : .005f);
-    m_moveDelta.y -= .005f;
-    move(m_moveDelta);
-    m_moveDelta.x *= 0.91f;
-    m_moveDelta.y *= 0.98f;
-    m_moveDelta.z *= 0.91f;
+    moveRelative(forward, vertical, m_onGround ? .02f : .005f);
+
+    // m_motion.y -= .005f;
+    
+    move(m_motion);
+    
+    m_motion *= glm::vec3(0.91f, 0.98f, 0.91f);
+
     if (m_onGround) {
-        m_moveDelta.x *= 0.8f;
-        m_moveDelta.z *= 0.8f;
+        m_motion.x *= 0.8f;
+        m_motion.z *= 0.8f;
     }
 }
 
-void Player::move(const Vector3& delta) {
-    Vector3 org = delta;
-    Vector3 a = delta;
-    auto aabbs = m_level->getCubes(m_aabb->expand(delta));
+void Player::move(const glm::vec3& delta) {
+    auto org = delta;
+    auto a = delta;
+    auto aabbs = m_level.getCubes(m_aabb.expand(delta));
 
-    for (const auto& aabb : aabbs) {
-        a.x = aabb->clipXCollide(m_aabb, a.x);
-        a.y = aabb->clipYCollide(m_aabb, a.y);
-        a.z = aabb->clipZCollide(m_aabb, a.z);
+    for (auto& aabb : aabbs) {
+        a.x = aabb.clipXCollide(m_aabb, a.x);
+        a.y = aabb.clipYCollide(m_aabb, a.y);
+        a.z = aabb.clipZCollide(m_aabb, a.z);
     }
 
-    m_aabb->move(a);
+    m_aabb.move(a);
 
     m_onGround = org.y != a.y && org.y < 0.f;
 
-    if (org.x != a.x)
-        m_moveDelta.x = 0.f;
+    if (org.x != a.x) {
+        m_motion.x = 0.f;
+    }
 
-    if (org.y != a.y)
-        m_moveDelta.y = 0.f;
+    if (org.y != a.y) {
+        m_motion.y = 0.f;
+    }
 
-    if (org.z != a.z)
-        m_moveDelta.z = 0.f;
+    if (org.z != a.z) {
+        m_motion.z = 0.f;
+    }
 
-    m_pos = {(m_aabb->getPos0().x + m_aabb->getPos1().x) / 2.f, m_aabb->getPos0().y + 1.62f,
-             (m_aabb->getPos0().z + m_aabb->getPos1().z) / 2.f};
+    m_pos = {
+        (m_aabb.min().x + m_aabb.max().x) / 2.f, 
+        m_aabb.min().y + 1.62f,
+        (m_aabb.min().z + m_aabb.max().z) / 2.f
+    };
 }
 
 void Player::moveRelative(float xa, float za, float speed) {
-    auto dist = xa * xa + za * za;
+    glm::vec2 input(xa, za);
 
-    if (dist >= .01f) {
-        dist = speed / sqrtf(dist);
-        xa *= dist;
-        za *= dist;
-        auto sin = sinf(m_rot.x);
-        auto cos = cosf(m_rot.x);
-        m_moveDelta.x += xa * cos - za * sin;
-        m_moveDelta.z += za * cos + xa * sin;
-    }
+    if (glm::length(input) < 0.01f) return;
+
+    input = glm::normalize(input) * speed;
+
+    float yawRad = glm::radians(m_rot.x);
+    float cosYaw = cos(yawRad);
+    float sinYaw = sin(yawRad);
+
+    m_motion.x += input.x * cosYaw - input.y * sinYaw;
+    m_motion.z += input.y * cosYaw + input.x * sinYaw;
 }

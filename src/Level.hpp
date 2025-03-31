@@ -1,24 +1,28 @@
 #pragma once
-#include "includes.hpp"
-#include "Chunk.hpp"
-#include "AABB.hpp"
+#include <Chunk.hpp>
+#include <AABB.hpp>
+
+#include <vector>
+#include <memory>
 
 class Chunk;
 
 class Level {
-  public:
+public:
     Level();
 
-    void generate();
-    bool isSolidTile(const BlockPos& pos);
-    void render();
-    std::shared_ptr<Chunk> getChunk(const ChunkPos& pos);
-    std::shared_ptr<Chunk> getChunk(const BlockPos& pos);
-    BlockTypes getBlock(const BlockPos& pos);
-    void setTile(const BlockPos& pos, BlockTypes type);
-    float getBrightness(const BlockPos& pos);
-    vector<std::shared_ptr<AABB>> getCubes(std::shared_ptr<AABB> other);
+    // void render();
+    // void generate();
 
-  private:
-    std::unordered_map<ChunkPos, std::shared_ptr<Chunk>> m_chunks;
+    // bool isSolidTile(glm::ivec3 pos);
+
+    // std::shared_ptr<Chunk> getChunk(glm::ivec3 pos);
+    // BlockTypes getBlock(glm::ivec3 pos);
+
+    // void setTile(glm::ivec3 pos, BlockTypes type);
+    // float getBrightness(glm::ivec3 pos);
+    std::vector<AABB> getCubes(const AABB& other);
+
+private:
+    std::vector<std::shared_ptr<Chunk>> m_chunks;
 };

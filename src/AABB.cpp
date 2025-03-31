@@ -1,9 +1,9 @@
 #include "AABB.hpp"
 #include <algorithm>
 
-AABB::AABB(glm::vec3 min, glm::vec3 max) : m_min(min), m_max(max) {}
+AABB::AABB(const glm::vec3& min, const glm::vec3& max) : m_min(min), m_max(max) {}
 
-AABB AABB::expand(glm::vec3 size) {
+AABB AABB::expand(const glm::vec3& size) {
     auto min = m_min;
     auto max = m_max;
 
@@ -25,7 +25,7 @@ AABB AABB::expand(glm::vec3 size) {
     return AABB(min, max);
 }
 
-AABB AABB::grow(glm::vec3 size) {
+AABB AABB::grow(const glm::vec3& size) {
     return AABB(m_min - size, m_max + size);
 }
 
@@ -89,7 +89,7 @@ bool AABB::intersects(AABB& other) {
            (other.m_max.z > m_min.z && other.m_min.z < m_max.z);
 }
 
-void AABB::move(glm::vec3 other) {
+void AABB::move(const glm::vec3& other) {
     m_min += other;
     m_max += other;
 }

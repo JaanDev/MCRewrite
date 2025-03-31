@@ -12,8 +12,7 @@ CPMAddPackage("gh:nothings/stb#master")
 
 file(GLOB SOURCES
     ${CMAKE_SOURCE_DIR}/libs/glad/src/glad.c
-    ${CMAKE_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_SOURCE_DIR}/src/Game.cpp
+    ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

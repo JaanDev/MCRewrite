@@ -1,15 +1,13 @@
 #pragma once
-#include "includes.hpp"
 #include <chrono>
 
 class Timer {
-  public:
+public:
     Timer(float ticksPerSecond);
     void advanceTime();
-    float getA();
     uint32_t getTicks();
 
-  private:
+private:
     int64_t getNanos();
 
     std::chrono::high_resolution_clock m_clock;
@@ -18,5 +16,4 @@ class Timer {
     float m_passedTime;
     float m_timeScale;
     uint32_t m_ticks;
-    float m_a; // i have tried to understand what this is... i failed
 };
