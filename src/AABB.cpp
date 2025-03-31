@@ -1,100 +1,95 @@
 #include "AABB.hpp"
+#include <algorithm>
 
-AABB::AABB(const Vector3& pos0, const Vector3& pos1) : m_pos0(pos0), m_pos1(pos1) {}
+AABB::AABB(glm::vec3 min, glm::vec3 max) : m_min(min), m_max(max) {}
 
-std::shared_ptr<AABB> AABB::expand(const Vector3& size) {
-    auto pos0 = m_pos0;
-    auto pos1 = m_pos1;
+AABB AABB::expand(glm::vec3 size) {
+    auto min = m_min;
+    auto max = m_max;
 
     if (size.x < 0.f)
-        pos0.x += size.x;
+        min.x += size.x;
     if (size.x > 0.f)
-        pos1.x += size.x;
+        max.x += size.x;
 
     if (size.y < 0.f)
-        pos0.y += size.y;
+        min.y += size.y;
     if (size.y > 0.f)
-        pos1.y += size.y;
+        max.y += size.y;
 
     if (size.z < 0.f)
-        pos0.z += size.z;
+        min.z += size.z;
     if (size.z > 0.f)
-        pos1.z += size.z;
+        max.z += size.z;
 
-    return std::make_shared<AABB>(pos0, pos1);
+    return AABB(min, max);
 }
 
-std::shared_ptr<AABB> AABB::grow(const Vector3& size) {
-    return std::make_shared<AABB>(m_pos0 - size, m_pos1 + size);
+AABB AABB::grow(glm::vec3 size) {
+    return AABB(m_min - size, m_max + size);
 }
 
-float AABB::clipXCollide(std::shared_ptr<AABB> other, float xa) {
-    if (other->getPos1().y <= m_pos0.y || other->getPos0().y >= m_pos1.y) {
-        return xa;
-    } else if (other->getPos1().z > m_pos0.z && other->getPos0().z < m_pos1.z) {
-        if (xa > 0.f && other->getPos1().x <= m_pos0.x)
-            xa = std::min(m_pos0.x - other->getPos1().x, xa);
-
-        if (xa < 0.f && other->getPos0().x >= m_pos1.x)
-            xa = std::max(xa, m_pos1.x - other->getPos0().x);
-
-        return xa;
-    } else {
+float AABB::clipXCollide(AABB& other, float xa) {
+    if (other.m_max.y <= m_min.y || other.m_min.y >= m_max.y) {
         return xa;
     }
-}
+    
+    if (other.m_max.z > m_min.z && other.m_min.z < m_max.z) {
+        if (xa > 0.f && other.m_max.x <= m_min.x) {
+            xa = std::min(m_min.x - other.m_max.x, xa);
+        }
 
-float AABB::clipYCollide(std::shared_ptr<AABB> other, float ya) {
-    if (other->getPos1().x <= m_pos0.x || other->getPos0().x >= m_pos1.x) {
-        return ya;
-    } else if (other->getPos1().z > m_pos0.z && other->getPos0().z < m_pos1.z) {
-        if (ya > 0.f && other->getPos1().y <= m_pos0.y)
-            ya = std::min(ya, m_pos0.y - other->getPos1().y);
-
-        if (ya < 0.f && other->getPos0().y >= m_pos1.y)
-            ya = std::max(ya, m_pos1.y - other->getPos0().y);
-
-        return ya;
-    } else {
-        return ya;
+        if (xa < 0.f && other.m_min.x >= m_max.x) {
+            xa = std::max(xa, m_max.x - other.m_min.x);
+        }
     }
+
+    return xa;
 }
 
-float AABB::clipZCollide(std::shared_ptr<AABB> other, float za) {
-    if (other->getPos1().x <= m_pos0.x || other->getPos0().x >= m_pos1.x) {
-        return za;
-    } else if (other->getPos1().y > m_pos0.y && other->getPos0().y < m_pos1.y) {
-        if (za > 0.f && other->getPos1().z <= m_pos0.z)
-            za = std::min(za, m_pos0.z - other->getPos1().z);
+float AABB::clipYCollide(AABB& other, float ya) {
+    if (other.m_max.x <= m_min.x || other.m_min.x >= m_max.x) {
+        return ya;
+    } 
+    
+    if (other.m_max.z > m_min.z && other.m_min.z < m_max.z) {
+        if (ya > 0.f && other.m_max.y <= m_min.y) {
+            ya = std::min(ya, m_min.y - other.m_max.y);
+        }
 
-        if (za < 0.f && other->getPos0().z >= m_pos1.z)
-            za = std::max(za, m_pos1.z - other->getPos0().z);
+        if (ya < 0.f && other.m_min.y >= m_max.y) {
+            ya = std::max(ya, m_max.y - other.m_min.y);
+        }
+    }
 
-        return za;
-    } else {
+    return ya;
+}
+
+float AABB::clipZCollide(AABB& other, float za) {
+    if (other.m_max.x <= m_min.x || other.m_min.x >= m_max.x) {
         return za;
     }
-}
+    
+    if (other.m_max.y > m_min.y && other.m_min.y < m_max.y) {
+        if (za > 0.f && other.m_max.z <= m_min.z) {
+            za = std::min(za, m_min.z - other.m_max.z);
+        }
 
-bool AABB::intersects(std::shared_ptr<AABB> other) {
-    if (other->getPos1().x <= m_pos0.x || other->getPos0().x >= m_pos1.x) {
-        return false;
-    } else if (other->getPos1().y <= m_pos0.y || other->getPos0().y >= m_pos1.y) {
-        return false;
-    } else {
-        return other->getPos1().z > m_pos0.z && other->getPos0().z < m_pos1.z;
+        if (za < 0.f && other.m_min.z >= m_max.z) {
+            za = std::max(za, m_max.z - other.m_min.z);
+        }
     }
+
+    return za;
 }
 
-void AABB::move(const Vector3& other) {
-    m_pos0 += other;
-    m_pos1 += other;
+bool AABB::intersects(AABB& other) {
+    return !(other.m_max.x <= m_min.x || other.m_min.x >= m_max.x) &&
+           !(other.m_max.y <= m_min.y || other.m_min.y >= m_max.y) &&
+           (other.m_max.z > m_min.z && other.m_min.z < m_max.z);
 }
 
-Vector3 AABB::getPos0() const {
-    return m_pos0;
-}
-
-Vector3 AABB::getPos1() const {
-    return m_pos1;
+void AABB::move(glm::vec3 other) {
+    m_min += other;
+    m_max += other;
 }

@@ -2,8 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <Logger.hpp>
 
-using namespace std::chrono;
-
 int main() {
     srand(time(0));
 
@@ -40,7 +38,7 @@ int main() {
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
 
-    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // rlFPCamera cam;
     // cam.Setup(fov, {0, 0, 0});

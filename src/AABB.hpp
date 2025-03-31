@@ -1,21 +1,24 @@
 #pragma once
-#include "includes.hpp"
+#include <glm.hpp>
 
 class AABB {
 public:
-    AABB(const Vector3& pos0, const Vector3& pos1);
-    std::shared_ptr<AABB> expand(const Vector3& size);
-    std::shared_ptr<AABB> grow(const Vector3& size);
-    float clipXCollide(std::shared_ptr<AABB> other, float xa);
-    float clipYCollide(std::shared_ptr<AABB> other, float ya);
-    float clipZCollide(std::shared_ptr<AABB> other, float za);
-    bool intersects(std::shared_ptr<AABB> other);
-    void move(const Vector3& other);
+    AABB(glm::vec3 min, glm::vec3 max);
 
-    Vector3 getPos0() const;
-    Vector3 getPos1() const;
+    AABB expand(glm::vec3 size);
+    AABB grow(glm::vec3 size);
 
-  private:
-    Vector3 m_pos0;
-    Vector3 m_pos1;
+    float clipXCollide(AABB& other, float xa);
+    float clipYCollide(AABB& other, float ya);
+    float clipZCollide(AABB& other, float za);
+    bool intersects(AABB& other);
+    
+    void move(glm::vec3 delta);
+
+    glm::vec3 min() const { return m_min; }
+    glm::vec3 max() const { return m_max; }
+
+private:
+    glm::vec3 m_min;
+    glm::vec3 m_max;
 };
