@@ -1,6 +1,8 @@
 # MCRewrite
-An open source Minecraft Java Edition rewrite in C++ using raylib.
+An open source Minecraft Java Edition rewrite in C++ using raylib.  
 This branch version is rd-132211.
+
+**This version is currently being rewritten from scratch without raylib and shit code, [check it out](https://github.com/JaanDev/MCRewrite/tree/new-rd-132211)!**
 
 ## TODO for rd-132211
 - [ ] Lighting (probably using a depth buffer)
@@ -37,5 +39,5 @@ The contributions are always welcomed! :<zero-width space>)
 
 ## Our contacts
 Discord:
-* Jaan#2897
-* Kolyah35#0107
+* jaan2897
+* kolyah35
