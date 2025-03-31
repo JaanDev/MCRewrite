@@ -12,9 +12,9 @@ class Game {
         return inst;
     }
 
-    int start();
+    int run();
 
-    inline auto getWindow() { return m_window; }
+    inline auto getWindow() const { return m_window; }
 
   private:
     GLFWwindow* m_window;

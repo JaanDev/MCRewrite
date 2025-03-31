@@ -19,7 +19,7 @@ void Player::setPos(const glm::vec3& pos) {
 
 void Player::turn(const glm::vec2& delta) {
     m_rot += delta * 0.15f;
-    m_rot.y = std::clamp(m_rot.y, -89.f, 89.f); // using 89.9 feels like a cheat but im too lazy to make it better =)
+    m_rot.y = std::clamp(m_rot.y, -90.f, 90.f); // using 89.9 feels like a cheat but im too lazy to make it better =)
     // m_rot.x = std::fmod(m_rot.x, 360.f);
 }
 
@@ -104,7 +104,7 @@ void Player::move(const glm::vec3& delta) {
 void Player::moveRelative(float xa, float za, float speed) {
     glm::vec2 input(xa, za);
 
-    if (glm::length(input) < 0.01f) return;
+    if (glm::length(input) < 0.1f) return;
 
     input = glm::normalize(input) * speed;
 

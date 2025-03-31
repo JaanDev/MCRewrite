@@ -1,6 +1,5 @@
 #pragma once
-#include "includes.hpp"
-#include "rlgl.h"
+#include <cstdint>
 
 const int chunkSize = 16;    // x and z
 const int chunkHeight = 256; // y
@@ -89,41 +88,6 @@ inline float randomFloat(float begin, float end) {
     return begin + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (end - begin)));
 }
 
-inline Vector3 operator+(Vector3 a, Vector3 b) {
-    return {a.x + b.x, a.y + b.y, a.z + b.z};
-}
-
-inline Vector3 operator-(Vector3 a, Vector3 b) {
-    return {a.x - b.x, a.y - b.y, a.z - b.z};
-}
-
-inline Vector3& operator+=(Vector3& a, const Vector3& b) {
-    a = a + b;
-    return a;
-}
-
-inline Vector3& operator-=(Vector3& a, const Vector3& b) {
-    a = a - b;
-    return a;
-}
-
-inline Vector2 operator*(Vector2 a, float b) {
-    return {a.x * b, a.y * b};
-}
-
-inline Vector2 operator+(Vector2 a, Vector2 b) {
-    return {a.x + b.x, a.y + b.y};
-}
-
-inline Vector2& operator+=(Vector2& a, Vector2 b) {
-    a = a + b;
-    return a;
-}
-
-inline bool operator==(Vector3 a, Vector3 b) {
-    return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
 enum class Faces {
     Up,    // y+
     Down,  // y-
@@ -133,60 +97,60 @@ enum class Faces {
     Right  // x-
 };
 
-inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
-    const float awayFromBlock = .004f;
+// inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
+//     const float awayFromBlock = .004f;
 
-    float x0 = blockPos.x;
-    float y0 = blockPos.y;
-    float z0 = blockPos.z;
-    float x1 = blockPos.x + 1.f;
-    float y1 = blockPos.y + 1.f;
-    float z1 = blockPos.z + 1.f;
+//     float x0 = blockPos.x;
+//     float y0 = blockPos.y;
+//     float z0 = blockPos.z;
+//     float x1 = blockPos.x + 1.f;
+//     float y1 = blockPos.y + 1.f;
+//     float z1 = blockPos.z + 1.f;
 
-    switch (face) {
-    case Faces::Up:
-        y1 += awayFromBlock;
-        // y+
-        DrawTriangle3D({x0, y1, z0}, {x0, y1, z1}, {x1, y1, z0}, col);
-        DrawTriangle3D({x0, y1, z1}, {x1, y1, z1}, {x1, y1, z0}, col);
-        break;
+//     switch (face) {
+//     case Faces::Up:
+//         y1 += awayFromBlock;
+//         // y+
+//         DrawTriangle3D({x0, y1, z0}, {x0, y1, z1}, {x1, y1, z0}, col);
+//         DrawTriangle3D({x0, y1, z1}, {x1, y1, z1}, {x1, y1, z0}, col);
+//         break;
 
-    case Faces::Down:
-        y0 -= awayFromBlock;
-        // y-
-        DrawTriangle3D({x1, y0, z0}, {x0, y0, z1}, {x0, y0, z0}, col);
-        DrawTriangle3D({x1, y0, z0}, {x1, y0, z1}, {x0, y0, z1}, col);
-        break;
+//     case Faces::Down:
+//         y0 -= awayFromBlock;
+//         // y-
+//         DrawTriangle3D({x1, y0, z0}, {x0, y0, z1}, {x0, y0, z0}, col);
+//         DrawTriangle3D({x1, y0, z0}, {x1, y0, z1}, {x0, y0, z1}, col);
+//         break;
 
-    case Faces::Back:
-        z1 += awayFromBlock;
-        // z-
-        DrawTriangle3D({x0, y0, z1}, {x1, y0, z1}, {x1, y1, z1}, col);
-        DrawTriangle3D({x0, y0, z1}, {x1, y1, z1}, {x0, y1, z1}, col);
-        break;
+//     case Faces::Back:
+//         z1 += awayFromBlock;
+//         // z-
+//         DrawTriangle3D({x0, y0, z1}, {x1, y0, z1}, {x1, y1, z1}, col);
+//         DrawTriangle3D({x0, y0, z1}, {x1, y1, z1}, {x0, y1, z1}, col);
+//         break;
 
-    case Faces::Front:
-        z0 -= awayFromBlock;
-        // z+
-        DrawTriangle3D({x1, y1, z0}, {x1, y0, z0}, {x0, y0, z0}, col);
-        DrawTriangle3D({x0, y1, z0}, {x1, y1, z0}, {x0, y0, z0}, col);
-        break;
+//     case Faces::Front:
+//         z0 -= awayFromBlock;
+//         // z+
+//         DrawTriangle3D({x1, y1, z0}, {x1, y0, z0}, {x0, y0, z0}, col);
+//         DrawTriangle3D({x0, y1, z0}, {x1, y1, z0}, {x0, y0, z0}, col);
+//         break;
 
-    case Faces::Left:
-        x1 += awayFromBlock;
-        // x+
-        DrawTriangle3D({x1, y0, z0}, {x1, y1, z0}, {x1, y0, z1}, col);
-        DrawTriangle3D({x1, y1, z0}, {x1, y1, z1}, {x1, y0, z1}, col);
-        break;
+//     case Faces::Left:
+//         x1 += awayFromBlock;
+//         // x+
+//         DrawTriangle3D({x1, y0, z0}, {x1, y1, z0}, {x1, y0, z1}, col);
+//         DrawTriangle3D({x1, y1, z0}, {x1, y1, z1}, {x1, y0, z1}, col);
+//         break;
 
-    case Faces::Right:
-        x0 -= awayFromBlock;
-        // x-
-        DrawTriangle3D({x0, y0, z0}, {x0, y0, z1}, {x0, y1, z1}, col);
-        DrawTriangle3D({x0, y0, z0}, {x0, y1, z1}, {x0, y1, z0}, col);
-        break;
-    }
-}
+//     case Faces::Right:
+//         x0 -= awayFromBlock;
+//         // x-
+//         DrawTriangle3D({x0, y0, z0}, {x0, y0, z1}, {x0, y1, z1}, col);
+//         DrawTriangle3D({x0, y0, z0}, {x0, y1, z1}, {x0, y1, z0}, col);
+//         break;
+//     }
+// }
 
 #define DO_TIME_MEASURING
 
@@ -201,19 +165,3 @@ inline void drawFace(const BlockPos& blockPos, Faces face, const Color& col) {
 #define TIME_MEASURE_END(name)
 #define TIME_MEASURE_DBG(name)
 #endif
-
-inline Vector2 MeasureText2(const char* text, int fontSize) {
-    Vector2 textSize = {0.0f, 0.0f};
-
-    // Check if default font has been loaded
-    if (GetFontDefault().texture.id != 0) {
-        int defaultFontSize = 10; // Default Font chars height in pixel
-        if (fontSize < defaultFontSize)
-            fontSize = defaultFontSize;
-        int spacing = fontSize / defaultFontSize;
-
-        textSize = MeasureTextEx(GetFontDefault(), text, (float)fontSize, (float)spacing);
-    }
-
-    return textSize;
-}
