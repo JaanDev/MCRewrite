@@ -1,8 +1,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <Logger.hpp>
+#include <logger.hpp>
 
-using namespace std::chrono;
+// using namespace std::chrono;
 
 int main() {
     srand(time(0));
