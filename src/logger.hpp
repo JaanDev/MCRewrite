@@ -1,22 +1,18 @@
 #pragma once
 #include <iostream>
-#include <fmt/format.h>
-#include <fmt/chrono.h>
-#include <fmt/color.h>
+#include <format>
 
 template <typename... Args>
-void logD(Args... args) {
-    std::cout << fmt::format("[{:%H:%M:%S}] DEBUG: ", fmt::localtime(std::time(nullptr))) << fmt::format(args...) << std::endl;
+void logD(std::format_string<Args...> s, Args&&... args) {
+    std::printf("DEBUG: %s\n", std::format(s, std::forward<Args>(args)...).c_str());
 }
 
 template <typename... Args>
-void logW(Args... args) {
-    std::cout << fmt::format("[{:%H:%M:%S}] WARN: ", fmt::localtime(std::time(nullptr)))
-              << fmt::format(fg(fmt::terminal_color::yellow), args...) << std::endl;
+void logW(std::format_string<Args...> s, Args&&... args) {
+    std::printf("WARNING: %s\n", std::format(s, std::forward<Args>(args)...).c_str());
 }
 
 template <typename... Args>
-void logE(Args... args) {
-    std::cout << fmt::format("[{:%H:%M:%S}] ERROR: ", fmt::localtime(std::time(nullptr)))
-              << fmt::format(fg(fmt::terminal_color::bright_red) | fmt::emphasis::bold, args...) << std::endl;
+void logE(std::format_string<Args...> s, Args&&... args) {
+    std::printf("ERROR: %s\n", std::format(s, std::forward<Args>(args)...).c_str());
 }
