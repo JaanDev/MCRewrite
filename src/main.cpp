@@ -9,8 +9,7 @@ int main() {
 
     const int width = 1024;
     const int height = 768;
-    const float fogColor[4] = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f, 1.f};
-    const float fov = 70.f;
+    constexpr float fogColor[] = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f, 1.f};
 
     if (!glfwInit()) {
         logE("GLFW init error!");
@@ -33,23 +32,15 @@ int main() {
         return -1;
     }
 
-    // // SetConfigFlags(FLAG_MSAA_4X_HINT);
-    // InitWindow(winW, winH, "Minecraft rd-132211");
-    // // SetTargetFPS(60);
-    // // SetTargetFPS(2600); // so it isnt too much bc then my pc starts making a high frequency noise which isnt good i suppose
+    glEnable(GL_TEXTURE_2D);
+    glShadeModel(GL_SMOOTH);
+    glClearColor(0.5f, 0.8f, 1.f, 0.f);
+    glClearDepth(1.f);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LEQUAL);
 
-
-    // glEnable(GL_TEXTURE_2D);
-    // glShadeModel(GL_SMOOTH);
-    // glClearColor(.5f, .8f, 1.f, 0.f);
-    // glClearDepth(1.0);
-    // glDepthFunc(GL_LEQUAL);
-    // glEnable(GL_NORMALIZE);
-    // glEnable(GL_POINT_SMOOTH);
-    // glEnable(GL_DEPTH_TEST);
-    // // glMatrixMode(5889);
-    // // glLoadIdentity();
-    // // glMatrixMode(5888);
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // rlFPCamera cam;
     // cam.Setup(fov, {0, 0, 0});
