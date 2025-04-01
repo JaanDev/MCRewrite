@@ -12,6 +12,7 @@
 #include <iostream>
 #include <Textures.hpp>
 #include <Chunk.hpp>
+#include <Icon.hpp>
 
 Game::Game() {}
 
@@ -28,7 +29,7 @@ int Game::run() {
 
     const int width = 1024;
     const int height = 768;
-    constexpr float fogColor[] = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f, 1.f};
+    const glm::vec3 fogColor = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f};
 
     if (!glfwInit()) {
         printf("GLFW init error!\n");
@@ -43,6 +44,10 @@ int Game::run() {
         return -1;
     }
 
+    GLFWimage icon = {16, 16, (unsigned char*)LWJGL_ICON_DATA_16x16};
+
+    glfwSetWindowIcon(m_window, 1, &icon);
+
     glfwMakeContextCurrent(m_window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -56,10 +61,12 @@ int Game::run() {
     glClearColor(0.5f, 0.8f, 1.f, 0.f);
     glClearDepth(1.f);
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-    glDepthFunc(GL_LEQUAL);
+    // glDisable(GL_CULL_FACE);
+    // glDepthFunc(GL_LEQUAL);
 
     m_defaultShader = createShaderProgram(vertexShader, fragmentShader);
+    glUniform3fv(glGetUniformLocation(m_defaultShader, "fogColor"), 1, glm::value_ptr(fogColor));
+
     int texture = Textures::loadTexture("terrain.png", GL_NEAREST);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -73,6 +80,7 @@ int Game::run() {
     glm::dvec2 prevMouse;
     glfwGetCursorPos(m_window, &prevMouse.x, &prevMouse.y);
     glm::dvec2 mouse;
+    HitResult hitResult;
 
     while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
         timer.advanceTime();
@@ -85,6 +93,41 @@ int Game::run() {
         
         player.turn(glm::vec2(mouse.x - prevMouse.x, prevMouse.y - mouse.y));
         prevMouse = mouse;
+
+        // Я ненавижу эти костыли
+        static bool wasPressed1 = false;
+        static bool wasPressed2 = false;
+
+        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+            if (!wasPressed1 && hitResult.hit) {
+                level.setTile(hitResult.pos, 0);
+            }
+            wasPressed1 = true;
+        } else {
+            wasPressed1 = false;
+        }
+
+        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS && hitResult.hit) {
+            if (!wasPressed2 && hitResult.hit) {
+                auto pos = hitResult.pos;
+        
+                // Get position of the tile using face direction
+                if (hitResult.face == Faces::Down) pos.y--;
+                if (hitResult.face == Faces::Up) pos.y++;
+                if (hitResult.face == Faces::Back) pos.z--;
+                if (hitResult.face == Faces::Front) pos.z++;
+                if (hitResult.face == Faces::Left) pos.x--;
+                if (hitResult.face == Faces::Right) pos.x++;
+        
+                // Set the tile
+                level.setTile(pos, 1);
+            }
+
+            wasPressed2 = true;
+        } else {
+            wasPressed2 = false;
+        }
+    
 
         // begin render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -99,7 +142,7 @@ int Game::run() {
             sin(rot.x) * cos(rot.y)
         );
 
-        glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y - 0.3f, pos.z);
+        glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y + 0.15f, pos.z);
         glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
         glm::mat4 mvp = projection * view;
 
@@ -107,9 +150,17 @@ int Game::run() {
         glUseProgram(m_defaultShader);
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniform3fv(glGetUniformLocation(m_defaultShader, "cameraPos"), 1, glm::value_ptr(cameraPosition));
         glBindTexture(GL_TEXTURE_2D, texture);
 
         level.render(mvp);
+
+        hitResult = pick(cameraPosition, direction, level);
+
+        if (hitResult.hit) {
+            glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)std::sin(glfwGetTime() * 10.0) * 0.2f + 0.4f);
+            level.renderHit(hitResult);
+        }
         
         glfwSwapBuffers(m_window);
         glfwPollEvents();
@@ -287,4 +338,61 @@ GLuint Game::createShaderProgram(const std::string_view& vertexData, const std::
     glDeleteShader(fragmentShader);
 
     return shaderProgram;
+}
+
+HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& level) {
+    HitResult result;
+
+    const glm::vec3 dir = glm::normalize(direction);
+    glm::vec3 currentPos = start;
+    
+    // DDA (Digital Differential Analyzer)
+    glm::ivec3 mapPos = glm::ivec3(floor(currentPos.x), floor(currentPos.y), floor(currentPos.z));
+    glm::vec3 deltaDist = glm::vec3(
+        abs(1.0f / dir.x),
+        abs(1.0f / dir.y),
+        abs(1.0f / dir.z)
+    );
+    
+    glm::ivec3 step;
+    glm::vec3 sideDist;
+    
+    for (int i = 0; i < 3; ++i) {
+        if (dir[i] < 0) {
+            step[i] = -1;
+            sideDist[i] = (currentPos[i] - mapPos[i]) * deltaDist[i];
+        } else {
+            step[i] = 1;
+            sideDist[i] = (mapPos[i] + 1.0f - currentPos[i]) * deltaDist[i];
+        }
+    }
+    
+    // DDA cycle
+    float traveled = 0.0f;
+    while (traveled < 3.0f) {
+        if (sideDist.x < sideDist.y && sideDist.x < sideDist.z) {
+            traveled = sideDist.x;
+            sideDist.x += deltaDist.x;
+            mapPos.x += step.x;
+            result.face = step.x < 0 ? Faces::Right : Faces::Left;
+        } else if (sideDist.y < sideDist.z) {
+            traveled = sideDist.y;
+            sideDist.y += deltaDist.y;
+            mapPos.y += step.y;
+            result.face = step.y < 0 ? Faces::Up : Faces::Down;
+        } else {
+            traveled = sideDist.z;
+            sideDist.z += deltaDist.z;
+            mapPos.z += step.z;
+            result.face = step.z < 0 ? Faces::Front : Faces::Back;
+        }
+        
+        if (level.isSolidTile(mapPos)) {
+            result.hit = true;
+            result.pos = mapPos;
+            break;
+        }
+    }
+    
+    return result;
 }

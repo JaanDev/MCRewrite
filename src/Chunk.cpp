@@ -1,6 +1,7 @@
 #include "Chunk.hpp"
 #include <utils.hpp>
 #include <iostream>
+#include <Tile.hpp>
 
 Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_level(level), m_min(min), m_max(max), m_built(false) {
     glGenVertexArrays(1, &m_vao);
@@ -62,97 +63,26 @@ void Chunk::build() {
 
 void Chunk::renderTile(const glm::vec3& pos, int tileID) {
     if (!m_level.isSolidTile(glm::ivec3(pos.x + 1, pos.y, pos.z))) {
-        addFace(pos, Faces::Right, tileID);
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Right);
     }
 
     if (!m_level.isSolidTile(glm::ivec3(pos.x - 1, pos.y, pos.z))) {
-        addFace(pos, Faces::Left, tileID);
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Left);
     }
 
     if (!m_level.isSolidTile(glm::ivec3(pos.x, pos.y + 1, pos.z))) {
-        addFace(pos, Faces::Up, tileID);
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Up);
     }
 
     if (!m_level.isSolidTile(glm::ivec3(pos.x, pos.y - 1, pos.z))) {
-        addFace(pos, Faces::Down, tileID);
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Down);
     }
 
     if (!m_level.isSolidTile(glm::ivec3(pos.x, pos.y, pos.z + 1))) {
-        addFace(pos, Faces::Front, tileID);
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Front);
     }
 
     if (!m_level.isSolidTile(glm::ivec3(pos.x, pos.y, pos.z - 1))) {
-        addFace(pos, Faces::Back, tileID);
-    }
-}
-
-void Chunk::addFace(const glm::vec3& pos, Faces face, int tileID) {
-    float minU = tileID / 16.0f;
-    float maxU = minU + 16.0f / 256.0f;
-    float minV = 0.0f;
-    float maxV = minV + 16.0f / 256.0f;
-    glm::vec3 shade = {0.6f, 1.f, 0.8f};
-    float b = m_level.getBrightness(pos);
-
-    switch (face) {
-        case Faces::Front:
-            b *= shade.z;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x,     pos.y,     pos.z + 1, b, b, b, minU, minV, 
-                pos.x + 1, pos.y,     pos.z + 1, b, b, b, minU, maxV,
-                pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, maxV,
-                pos.x,     pos.y + 1, pos.z + 1, b, b, b, maxU, minV
-            });
-            break;
-
-        case Faces::Back:
-            b *= shade.z;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x,     pos.y,     pos.z, b, b, b, maxU, minV,
-                pos.x,     pos.y + 1, pos.z, b, b, b, minU, minV,
-                pos.x + 1, pos.y + 1, pos.z, b, b, b, minU, maxV,
-                pos.x + 1, pos.y,     pos.z, b, b, b, maxU, maxV
-            });
-            break;
-
-        case Faces::Left:
-            b *= shade.x;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x, pos.y,     pos.z,     b, b, b, maxU, minV,
-                pos.x, pos.y,     pos.z + 1, b, b, b, minU, minV,
-                pos.x, pos.y + 1, pos.z + 1, b, b, b, minU, maxV,
-                pos.x, pos.y + 1, pos.z,     b, b, b, maxU, maxV
-            });
-            break;
-
-        case Faces::Right:
-            b *= shade.x;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x + 1, pos.y,     pos.z,     b, b, b, minU, maxV,
-                pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, maxV,
-                pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, minV,
-                pos.x + 1, pos.y,     pos.z + 1, b, b, b, minU, minV
-            });
-            break;
-
-        case Faces::Up:
-            b *= shade.y;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x,     pos.y + 1, pos.z,     b, b, b, maxU, maxV,
-                pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, minV,
-                pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, minU, minV,
-                pos.x,     pos.y + 1, pos.z + 1, b, b, b, minU, maxV
-            });
-            break;
-
-        case Faces::Down:
-            b *= shade.y;
-            m_vertices.insert(m_vertices.end(), {
-                pos.x,     pos.y, pos.z,     b, b, b, minU, maxV,
-                pos.x + 1, pos.y, pos.z,     b, b, b, minU, minV,
-                pos.x + 1, pos.y, pos.z + 1, b, b, b, maxU, minV,
-                pos.x,     pos.y, pos.z + 1, b, b, b, maxU, maxV
-            });
-            break;
+        Tile::renderFace(m_vertices, m_level, tileID, pos, Faces::Back);
     }
 }

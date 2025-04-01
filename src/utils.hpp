@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <glm/glm.hpp>
 
 enum class BlockID : uint8_t {
     AIR = 0,
@@ -20,10 +21,6 @@ struct Vertex {
     float u, v;
 };
 
-inline float randomFloat(float begin, float end) {
-    return begin + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (end - begin)));
-}
-
 enum class Faces {
     Up,    // y+
     Down,  // y-
@@ -32,6 +29,18 @@ enum class Faces {
     Left,  // x+
     Right  // x-
 };
+
+struct HitResult {
+    bool hit = false;
+
+    glm::ivec3 pos;
+    Faces face;
+};
+
+
+inline float randomFloat(float begin, float end) {
+    return begin + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (end - begin)));
+}
 
 #define DO_TIME_MEASURING
 

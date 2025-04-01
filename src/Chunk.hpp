@@ -17,7 +17,6 @@ public:
     void render();
     void build();
     void renderTile(const glm::vec3& pos, int tileID);
-    void addFace(const glm::vec3& pos, Faces face, int tileID);
 
     inline void rebuild() { m_built = false; }
     inline const AABB getBounds() { return AABB(m_min, m_max); }

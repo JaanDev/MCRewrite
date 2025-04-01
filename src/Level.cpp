@@ -4,8 +4,10 @@
 #include <glm/common.hpp>
 #include <glm/fwd.hpp>
 #include <memory>
+#include <GLFW/glfw3.h>
+#include <Tile.hpp>
 
-Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height) {
+Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height), m_hitVertices(32) {
     // Fill level with tiles
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < depth; y++) {
@@ -18,8 +20,6 @@ Level::Level(int width, int height, int depth) : m_width(width), m_height(height
             }
         }
     }
-
-    calcLightDepths(0, 0, width, height);
 
     glm::ivec3 chunkCount = {m_width, m_depth, m_height};
     chunkCount /= CHUNK_SIZE;
@@ -45,6 +45,27 @@ Level::Level(int width, int height, int depth) : m_width(width), m_height(height
             }
         }
     }
+
+    calcLightDepths(0, 0, width, height);
+
+    glGenVertexArrays(1, &m_hitVAO);
+    glGenBuffers(1, &m_hitVBO);
+
+    glBindVertexArray(m_hitVAO);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_hitVBO);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glBindVertexArray(0);
 }
 
 bool Level::isSolidTile(glm::ivec3 pos) {
@@ -70,13 +91,35 @@ void Level::render(const glm::mat4& VP) {
     }
 }
 
+void Level::renderHit(const HitResult& hit) {
+    glDisable(GL_DEPTH_TEST);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
+    m_hitVertices.clear();
+
+    // Render face
+    Tile::renderFace(m_hitVertices, *this, 1, hit.pos, hit.face);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_hitVBO);
+    glBufferData(GL_ARRAY_BUFFER, m_hitVertices.size() * sizeof(float), m_hitVertices.data(), GL_DYNAMIC_DRAW);
+
+    glBindVertexArray(m_hitVAO);
+    glDrawArrays(GL_QUADS, 0, m_hitVertices.size() / 8);
+    glBindVertexArray(0);
+
+    glDisable(GL_BLEND);
+
+    glEnable(GL_DEPTH_TEST);
+}
+
 void Level::calcLightDepths(int minX, int minZ, int maxX, int maxZ) {
     for (int x = minX; x < minX + maxX; x++) {
         for (int z = minZ; z < minZ + maxZ; z++) {
             int prevDepth = m_lightDepths[x + z * m_width];
 
             int depth = m_depth - 1;
-            while (depth > 0 && !isSolidTile(glm::vec3(x, m_depth, z))) {
+            while (depth > 0 && !isSolidTile(glm::vec3(x, depth, z))) {
                 depth--;
             }
 
@@ -85,7 +128,6 @@ void Level::calcLightDepths(int minX, int minZ, int maxX, int maxZ) {
             if (prevDepth != depth) {
                 int minTileChangeY = std::min(prevDepth, depth);
                 int maxTileChangeY = std::max(prevDepth, depth);
-
 
                 rebuildChunks(glm::ivec3(x - 1, minTileChangeY - 1, z - 1), glm::ivec3(x + 1, maxTileChangeY + 1, z + 1));
             }
@@ -115,36 +157,16 @@ void Level::rebuildChunks(glm::ivec3 min, glm::ivec3 max) {
     }
 }
 
-// void Level::setTile(const BlockPos& pos, BlockTypes type) {
-//     if (pos.y >= chunkHeight)
-//         return;
+void Level::setTile(glm::ivec3 pos, int id) {
+    if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= m_width || pos.y >= m_depth || pos.z >= m_height) {
+        return;
+    }
 
-//     auto chunk = getChunk(pos);
-//     if (!chunk)
-//         return;
+    m_blocks[(pos.y * m_height + pos.z) * m_width + pos.x] = (uint8_t)id;
 
-//     auto chunkPos = chunk->getPos();
-
-//     chunk->setBlock(pos.local(), type);
-//     chunk->calcLightDepths();
-//     chunk->generateMesh();
-
-//     auto localPos = pos.local();
-
-//     if (localPos.x == 0) {
-//         if (auto c = getChunk(ChunkPos {chunkPos.x - 1, chunkPos.z}))
-//             c->generateMesh();
-//     } else if (localPos.x == chunkSize - 1)
-//         if (auto c = getChunk(ChunkPos {chunkPos.x + 1, chunkPos.z}))
-//             c->generateMesh();
-
-//     if (localPos.z == 0) {
-//         if (auto c = getChunk(ChunkPos {chunkPos.x, chunkPos.z - 1}))
-//             c->generateMesh();
-//     } else if (localPos.z == chunkSize - 1)
-//         if (auto c = getChunk(ChunkPos {chunkPos.x, chunkPos.z + 1}))
-//             c->generateMesh();
-// }
+    calcLightDepths(pos.x, pos.z, 1, 1);
+    rebuildChunks(pos - 1, pos + 1);
+}
 
 float Level::getBrightness(const glm::ivec3& pos) {
     float dark = 0.8f;
