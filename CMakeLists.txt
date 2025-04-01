@@ -19,13 +19,14 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} glfw glm)
 target_include_directories(${PROJECT_NAME} PUBLIC
-    ${CMAKE_SOURCE_DIR}/libs/glad/include    
+    ${CMAKE_SOURCE_DIR}/libs/glad/include        
     ${CMAKE_SOURCE_DIR}/src
+    ${stb_SOURCE_DIR}/
 )
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/assets)
-    # file(COPY ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/assets")
+    file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_BINARY_DIR}/)
+    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/*" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/")
 else()
     message("-- WARNING: Don't forget to copy resources from .jar file to assets folder!")
 endif()

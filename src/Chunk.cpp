@@ -25,20 +25,23 @@ Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_lev
 
 void Chunk::render() {
     if (!m_built) {
-        generateMesh();
+        build();
     }
 
     glBindVertexArray(m_vao);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawArrays(GL_QUADS, 0, m_vertices.size() / 8);
-    glDrawArrays(GL_LINES, 0, m_vertices.size());
-
     glBindVertexArray(0);
 }
 
-void Chunk::generateMesh() {
-    m_vertices.clear();
+void Chunk::build() {
+    // if (buildThisFrame == 2) {
+    //     return;
+    // }
+
     m_built = true;
+    updates++;
+    buildThisFrame++;
+    m_vertices.clear();
 
     for (int x = m_min.x; x < m_max.x; x++) {
         for (int y = m_min.y; y < m_max.y; y++) {
@@ -55,8 +58,6 @@ void Chunk::generateMesh() {
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), m_vertices.data(), GL_DYNAMIC_DRAW);
-
-    std::cout << "Vertices: " << m_vertices.size() << std::endl;
 }
 
 void Chunk::renderTile(const glm::vec3& pos, int tileID) {

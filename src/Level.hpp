@@ -13,7 +13,7 @@ class Level {
 public:
     Level(int width, int height, int depth);
 
-    void render();
+    void render(const glm::mat4& VP);
 
     bool isSolidTile(glm::ivec3 pos);
     void calcLightDepths(int minX, int minZ, int maxX, int maxZ);

@@ -9,10 +9,13 @@
 
 class Chunk {
 public:
+    inline static int updates = 0;
+    inline static int buildThisFrame = 0;
+
     Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max);
 
     void render();
-    void generateMesh();
+    void build();
     void renderTile(const glm::vec3& pos, int tileID);
     void addFace(const glm::vec3& pos, Faces face, int tileID);
 

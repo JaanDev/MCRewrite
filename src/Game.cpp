@@ -10,6 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <DefaultShader.hpp>
 #include <iostream>
+#include <Textures.hpp>
+#include <Chunk.hpp>
 
 Game::Game() {}
 
@@ -58,6 +60,7 @@ int Game::run() {
     glDepthFunc(GL_LEQUAL);
 
     m_defaultShader = createShaderProgram(vertexShader, fragmentShader);
+    int texture = Textures::loadTexture("terrain.png", GL_NEAREST);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -98,16 +101,15 @@ int Game::run() {
 
         glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y - 0.3f, pos.z);
         glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        
-        // we dont need it on opengl 3.3 cuz mvp calculates in shader
-        //glm::mat4 mvp = projection * view;
+        glm::mat4 mvp = projection * view;
 
         //glLoadMatrixf(glm::value_ptr(mvp));
         glUseProgram(m_defaultShader);
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    
-        level.render();
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        level.render(mvp);
         
         glfwSwapBuffers(m_window);
         glfwPollEvents();
@@ -117,9 +119,9 @@ int Game::run() {
 
         auto currentTime = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() >= 1000) {
-            // std::cout << frames << " fps, " << Chunk::updates << std::endl;
+            std::cout << frames << " fps, " << Chunk::updates << std::endl;
             
-            // Chunk::updates = 0;
+            Chunk::updates = 0;
             lastTime = currentTime;
             frames = 0;
         }

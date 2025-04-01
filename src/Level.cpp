@@ -57,13 +57,16 @@ bool Level::isSolidTile(glm::ivec3 pos) {
     return m_blocks[index] != 0;
 }
 
-void Level::render() {
+void Level::render(const glm::mat4& VP) {
     auto frustum = Frustum::get();
+    frustum->calculateFrustum(VP);
+
+    Chunk::buildThisFrame = 0;
 
     for (const auto& chunk : m_chunks) {
-        // if (frustum->cubeInFrustum(chunk->getBounds())) {
+        if (frustum->cubeInFrustum(chunk->getBounds())) {
             chunk->render();
-        // }
+        }
     }
 }
 
