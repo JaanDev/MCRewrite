@@ -5,13 +5,15 @@
 #include <glad/glad.h>
 #include <vector>
 
+#define CHUNK_SIZE 16
+
 class Chunk {
 public:
     Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max);
 
     void render();
     void generateMesh();
-    void renderTile(const glm::ivec3& pos, int tileID);
+    void renderTile(const glm::vec3& pos, int tileID);
     void addFace(const glm::vec3& pos, Faces face, int tileID);
 
     inline void rebuild() { m_built = false; }
@@ -19,9 +21,12 @@ public:
 
 private:
     Level& m_level;
+    
     glm::ivec3 m_min;
     glm::ivec3 m_max;
+    
     bool m_built;
+
     std::vector<float> m_vertices;
     GLuint m_vao;
     GLuint m_vbo;

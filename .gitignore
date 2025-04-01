@@ -1,5 +1,6 @@
 /.vscode/
 /.vs/
+/.cache/
 /build/
 /assets/
 /build_linux/

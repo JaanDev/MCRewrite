@@ -4,9 +4,12 @@
 #include <Timer.hpp>
 #include <Level.hpp>
 #include <Player.hpp>
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <DefaultShader.hpp>
+#include <iostream>
 
 Game::Game() {}
 
@@ -51,8 +54,10 @@ int Game::run() {
     glClearColor(0.5f, 0.8f, 1.f, 0.f);
     glClearDepth(1.f);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
+
+    m_defaultShader = createShaderProgram(vertexShader, fragmentShader);
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -73,7 +78,6 @@ int Game::run() {
             player.tick();
         }
 
-        
         glfwGetCursorPos(m_window, &mouse.x, &mouse.y);
         
         player.turn(glm::vec2(mouse.x - prevMouse.x, prevMouse.y - mouse.y));
@@ -91,58 +95,20 @@ int Game::run() {
             sin(rot.y), 
             sin(rot.x) * cos(rot.y)
         );
+
         glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y - 0.3f, pos.z);
         glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 mvp = projection * view;
+        
+        // we dont need it on opengl 3.3 cuz mvp calculates in shader
+        //glm::mat4 mvp = projection * view;
 
-        glLoadMatrixf(glm::value_ptr(mvp));
-
-        glBegin(GL_QUADS);
+        //glLoadMatrixf(glm::value_ptr(mvp));
+        glUseProgram(m_defaultShader);
+        glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     
-        // Front face
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(-0.5f, -0.5f,  0.5f);
-        glVertex3f( 0.5f, -0.5f,  0.5f);
-        glVertex3f( 0.5f,  0.5f,  0.5f);
-        glVertex3f(-0.5f,  0.5f,  0.5f);
-
-        // Back face
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f(-0.5f,  0.5f, -0.5f);
-        glVertex3f( 0.5f,  0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f, -0.5f);
-
-        // Left face
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f(-0.5f, -0.5f,  0.5f);
-        glVertex3f(-0.5f,  0.5f,  0.5f);
-        glVertex3f(-0.5f,  0.5f, -0.5f);
-
-        // Right face
-        glColor3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(0.5f, -0.5f, -0.5f);
-        glVertex3f(0.5f,  0.5f, -0.5f);
-        glVertex3f(0.5f,  0.5f,  0.5f);
-        glVertex3f(0.5f, -0.5f,  0.5f);
-
-        // Top face
-        glColor3f(1.0f, 0.0f, 1.0f);
-        glVertex3f(-0.5f,  0.5f, -0.5f);
-        glVertex3f(-0.5f,  0.5f,  0.5f);
-        glVertex3f( 0.5f,  0.5f,  0.5f);
-        glVertex3f( 0.5f,  0.5f, -0.5f);
-
-        // Bottom face
-        glColor3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(-0.5f, -0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f, -0.5f);
-        glVertex3f( 0.5f, -0.5f,  0.5f);
-        glVertex3f(-0.5f, -0.5f,  0.5f);
-
-        glEnd();
-
+        level.render();
+        
         glfwSwapBuffers(m_window);
         glfwPollEvents();
         // end render
@@ -152,7 +118,7 @@ int Game::run() {
         auto currentTime = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() >= 1000) {
             // std::cout << frames << " fps, " << Chunk::updates << std::endl;
-
+            
             // Chunk::updates = 0;
             lastTime = currentTime;
             frames = 0;
@@ -278,4 +244,45 @@ int Game::run() {
     // CloseWindow();
 
     return 0;
+}
+
+GLuint Game::createShader(const std::string_view& data, GLenum shaderType) {
+    GLuint shader = glCreateShader(shaderType);
+    const char* ptr = data.data();
+    glShaderSource(shader, 1, &ptr, NULL);
+    glCompileShader(shader);
+
+    int success;
+    char infoLog[512];
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        glGetShaderInfoLog(shader, 512, NULL, infoLog);
+        std::cerr << "Shader compile error:\n" << infoLog << std::endl;
+    }
+
+    return shader;
+}
+
+GLuint Game::createShaderProgram(const std::string_view& vertexData, const std::string_view& fragmentData) {
+    GLuint vertexShader = createShader(vertexData, GL_VERTEX_SHADER);
+    GLuint fragmentShader = createShader(fragmentData, GL_FRAGMENT_SHADER);
+
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    int success;
+    char infoLog[512];
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+        std::cerr << "Shader link error:\n" << infoLog << std::endl;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    return shaderProgram;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include <AABB.hpp>
 
+#include <glm/fwd.hpp>
 #include <vector>
 #include <memory>
 
@@ -16,8 +17,7 @@ public:
 
     bool isSolidTile(glm::ivec3 pos);
     void calcLightDepths(int minX, int minZ, int maxX, int maxZ);
-
-    // BlockTypes getBlock(glm::ivec3 pos);
+    void rebuildChunks(glm::ivec3 min, glm::ivec3 max);
 
     // void setTile(glm::ivec3 pos, BlockTypes type);
     float getBrightness(const glm::ivec3& pos);
