@@ -52,10 +52,10 @@ void Tile::renderFace(std::vector<float>& vertices, Level& level, int tileID, co
         case Faces::Up:
             b = level.getBrightness(glm::vec3(pos.x, pos.y + 1, pos.z)) * shade.y;
             vertices.insert(vertices.end(), {
-                pos.x,     pos.y + 1, pos.z,     b, b, b, maxU, maxV,
-                pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, minV,
+                pos.x,     pos.y + 1, pos.z + 1, b, b, b, minU, maxV,
                 pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, minU, minV,
-                pos.x,     pos.y + 1, pos.z + 1, b, b, b, minU, maxV
+                pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, minV,
+                pos.x,     pos.y + 1, pos.z,     b, b, b, maxU, maxV,
             });
             break;
 
