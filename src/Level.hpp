@@ -29,6 +29,9 @@ public:
     auto getHeight() const { return m_height; }
     auto getDepth() const { return m_depth; }
 
+    void save();
+    bool load();
+
 private:
     std::vector<uint8_t> m_blocks;
     std::vector<int> m_lightDepths;

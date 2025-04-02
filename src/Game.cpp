@@ -183,7 +183,7 @@ int Game::run() {
         }
     }
 
-    // level.save();
+    level.save();
 
     glfwDestroyWindow(m_window);
     glfwTerminate();

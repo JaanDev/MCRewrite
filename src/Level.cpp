@@ -6,17 +6,22 @@
 #include <memory>
 #include <GLFW/glfw3.h>
 #include <Tile.hpp>
+#include <fstream>
+#include <miniz.h>
+#include <iostream>
 
 Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height), m_hitVertices(32) {
-    // Fill level with tiles
-    for (int x = 0; x < width; x++) {
-        for (int y = 0; y < depth; y++) {
-            for (int z = 0; z < height; z++) {
-                // Calculate index from x, y and z
-                int index = (y * m_height + z) * m_width + x;
+    if (!load()) {
+        // Fill level with tiles
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < depth; y++) {
+                for (int z = 0; z < height; z++) {
+                    // Calculate index from x, y and z
+                    int index = (y * m_height + z) * m_width + x;
 
-                // Fill level with tiles
-                m_blocks[index] = (uint8_t)((y <= depth * 2 / 3) ? 1 : 0);
+                    // Fill level with tiles
+                    m_blocks[index] = (uint8_t)((y <= depth * 2 / 3) ? 1 : 0);
+                }
             }
         }
     }
@@ -220,4 +225,82 @@ std::vector<AABB> Level::getCubes(const AABB& other) {
     }
 
     return aabbs;
+}
+
+void Level::save() {
+    auto file = std::ofstream("level.dat", std::ios::binary);
+    if (!file) {
+        std::cerr << "Failed to open file level.dat" << std::endl;
+        return;
+    }
+
+    mz_stream stream;
+    memset(&stream, 0, sizeof(stream));
+    stream.next_in = m_blocks.data();
+    stream.avail_in = m_blocks.size();
+
+    int status = mz_deflateInit2(
+        &stream,
+        MZ_DEFAULT_COMPRESSION,
+        MZ_DEFLATED,
+        -MZ_DEFAULT_WINDOW_BITS,
+        9,
+        MZ_DEFAULT_STRATEGY
+    );
+
+    if (status != MZ_OK) {
+        std::cerr << "GZIP init failed: " << zError(status) << std::endl;
+        file.close();
+        return;
+    }
+
+    file.write("\x1f\x8b\x08\0\0\0\0\0\0\xff", 10);
+
+    uint8_t out_buffer[4096];
+    do {
+        stream.next_out = out_buffer;
+        stream.avail_out = sizeof(out_buffer);
+
+        status = mz_deflate(&stream, MZ_FINISH);
+        if (status != MZ_OK && status != MZ_STREAM_END) {
+            std::cerr << "Compression error: " << status << std::endl;
+            mz_deflateEnd(&stream);
+            file.close();
+            return;
+        }
+
+        file.write((const char*)out_buffer, sizeof(out_buffer) - stream.avail_out);
+    } while (status != MZ_STREAM_END);
+
+    mz_deflateEnd(&stream);
+    file.close();
+}
+
+bool Level::load() {
+    auto file = std::basic_ifstream<uint8_t>("level.dat", std::ios::binary);
+    if (!file) {
+        return false;
+    }
+
+    mz_stream stream = {0};
+    if (mz_inflateInit2(&stream, -MZ_DEFAULT_WINDOW_BITS) != MZ_OK) {
+        file.close();
+        return false;
+    }
+
+    std::vector<uint8_t> buf((std::istreambuf_iterator<uint8_t>(file)), std::istreambuf_iterator<uint8_t>());
+
+    stream.next_out = m_blocks.data();
+    stream.avail_out = m_blocks.size();
+    stream.next_in = buf.data() + 10;
+    stream.avail_in = buf.size() - 10;
+
+    int status = mz_inflate(&stream, MZ_NO_FLUSH);
+    if (status != MZ_OK && status != MZ_STREAM_END) {
+        return false;
+    }
+
+    mz_inflateEnd(&stream);
+    file.close();
+    return true;
 }
