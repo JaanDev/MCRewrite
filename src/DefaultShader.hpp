@@ -34,14 +34,14 @@ out vec4 FragColor;
 uniform sampler2D tex;
 uniform vec3 fogColor;
 uniform vec3 cameraPos;
-uniform float fogDensity = 0.15;
+uniform float fogDensity = 0.125;
 
 void main() {
     float brightness = (fragColor.r + fragColor.g + fragColor.b) / 3.0;
     float distance = length(cameraPos - FragPos);
 
     float fogFactor = 1.0 - exp(-pow(distance * fogDensity, 2));
-    float lightFactor = smoothstep(0.7, 1.0, brightness); 
+    float lightFactor = smoothstep(0.8, 0.9, brightness); 
     vec3 finalColor = mix(fragColor, fogColor, fogFactor * (1.0 - lightFactor));
 
     FragColor = texture(tex, fragUV) * vec4(finalColor, fragAlpha);

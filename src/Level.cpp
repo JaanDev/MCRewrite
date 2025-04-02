@@ -92,8 +92,6 @@ void Level::render(const glm::mat4& VP) {
 }
 
 void Level::renderHit(const HitResult& hit) {
-    glDisable(GL_DEPTH_TEST);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
     m_hitVertices.clear();
@@ -109,8 +107,6 @@ void Level::renderHit(const HitResult& hit) {
     glBindVertexArray(0);
 
     glDisable(GL_BLEND);
-
-    glEnable(GL_DEPTH_TEST);
 }
 
 void Level::calcLightDepths(int minX, int minZ, int maxX, int maxZ) {

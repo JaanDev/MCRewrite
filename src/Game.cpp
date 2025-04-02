@@ -47,8 +47,8 @@ int Game::run() {
     GLFWimage icon = {16, 16, (unsigned char*)LWJGL_ICON_DATA_16x16};
 
     glfwSetWindowIcon(m_window, 1, &icon);
-
     glfwMakeContextCurrent(m_window);
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         glfwTerminate();
