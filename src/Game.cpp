@@ -110,7 +110,7 @@ int Game::run() {
         if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS && hitResult.hit) {
             if (!wasPressed2 && hitResult.hit) {
                 auto pos = hitResult.pos;
-        
+
                 // Get position of the tile using face direction
                 if (hitResult.face == Faces::Down) pos.y--;
                 if (hitResult.face == Faces::Up) pos.y++;
@@ -136,15 +136,20 @@ int Game::run() {
         auto rot = glm::radians(player.getRot());
         auto pos = player.getPos();
 
+        glm::mat4 view = glm::identity<glm::mat4>();
+        view = glm::translate(view, {0, 0, -0.3f});
+        view = glm::rotate(view, glm::radians(-player.getRot().y), {1, 0, 0});
+        view = glm::rotate(view, glm::radians(player.getRot().x + 90), {0, 1, 0});
+        view = glm::translate(view, -pos);
+        glm::mat4 mvp = projection * view;
+
         glm::vec3 direction = glm::vec3(
             cos(rot.x) * cos(rot.y), 
             sin(rot.y), 
             sin(rot.x) * cos(rot.y)
         );
 
-        glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y + 0.15f, pos.z);
-        glm::mat4 view = glm::lookAt(cameraPosition, cameraPosition + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 mvp = projection * view;
+        glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y, pos.z);
 
         //glLoadMatrixf(glm::value_ptr(mvp));
         glUseProgram(m_defaultShader);

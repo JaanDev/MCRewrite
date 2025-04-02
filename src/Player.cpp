@@ -3,7 +3,7 @@
 #include <algorithm>
 
 Player::Player(Level& level)
-    : m_level(level), m_pos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
+    : m_level(level), m_pos(0.f), m_prevPos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
 
 void Player::resetPos() {
     setPos({rand() % m_level.getWidth(), m_level.getDepth() + 3, rand() % m_level.getHeight()});
@@ -19,11 +19,11 @@ void Player::setPos(const glm::vec3& pos) {
 
 void Player::turn(const glm::vec2& delta) {
     m_rot += delta * 0.15f;
-    m_rot.y = std::clamp(m_rot.y, -89.f, 89.f); // using 89.9 feels like a cheat but im too lazy to make it better =)
+    m_rot.y = std::clamp(m_rot.y, -89.9f, 89.9f); // using 89.9 feels like a cheat but im too lazy to make it better =)
 }
 
 void Player::tick() {
-    static auto prevPos = m_pos;
+    m_prevPos = m_pos;
     float forward, vertical;
     forward = vertical = 0.f;
 
