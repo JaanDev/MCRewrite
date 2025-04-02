@@ -15,10 +15,11 @@ struct UV {
     float endY;
 };
 
-struct Vertex {
+struct ChunkVertex {
     float x, y, z;
     float r, g, b;
     float u, v;
+    float shadow;
 };
 
 enum class Faces {

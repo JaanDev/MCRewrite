@@ -29,7 +29,7 @@ private:
     
     bool m_built;
 
-    std::vector<float> m_vertices;
+    std::vector<ChunkVertex> m_vertices;
     GLuint m_vao;
     GLuint m_vbo;
 };

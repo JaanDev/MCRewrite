@@ -10,7 +10,7 @@
 #include <miniz.h>
 #include <iostream>
 
-Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height), m_hitVertices(32) {
+Level::Level(int width, int height, int depth) : m_width(width), m_height(height), m_depth(depth), m_blocks(width * height * depth), m_lightDepths(width * height) {
     if (!load()) {
         // Fill level with tiles
         for (int x = 0; x < width; x++) {
@@ -52,25 +52,6 @@ Level::Level(int width, int height, int depth) : m_width(width), m_height(height
     }
 
     calcLightDepths(0, 0, width, height);
-
-    glGenVertexArrays(1, &m_hitVAO);
-    glGenBuffers(1, &m_hitVBO);
-
-    glBindVertexArray(m_hitVAO);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_hitVBO);
-    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0);
 }
 
 bool Level::isSolidTile(glm::ivec3 pos) {
@@ -99,17 +80,54 @@ void Level::render(const glm::mat4& VP) {
 void Level::renderHit(const HitResult& hit) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
-    m_hitVertices.clear();
 
-    // Render face
-    Tile::renderFace(m_hitVertices, *this, 1, hit.pos, hit.face);
+    glBegin(GL_QUADS);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_hitVBO);
-    glBufferData(GL_ARRAY_BUFFER, m_hitVertices.size() * sizeof(float), m_hitVertices.data(), GL_DYNAMIC_DRAW);
+    switch (hit.face) {
+        case Faces::Up:
+            glVertex3f(hit.pos.x,     hit.pos.y + 1, hit.pos.z + 1);
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z + 1);
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z    );
+            glVertex3f(hit.pos.x,     hit.pos.y + 1, hit.pos.z    );
+            break;
 
-    glBindVertexArray(m_hitVAO);
-    glDrawArrays(GL_QUADS, 0, m_hitVertices.size() / 8);
-    glBindVertexArray(0);
+        case Faces::Down:
+            glVertex3f(hit.pos.x,     hit.pos.y, hit.pos.z    );
+            glVertex3f(hit.pos.x + 1, hit.pos.y, hit.pos.z    );
+            glVertex3f(hit.pos.x + 1, hit.pos.y, hit.pos.z + 1);
+            glVertex3f(hit.pos.x,     hit.pos.y, hit.pos.z + 1);
+            break;
+
+        case Faces::Right:
+            glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z    );
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z    );
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z + 1);
+            glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z + 1);
+            break;
+
+        case Faces::Left:
+            glVertex3f(hit.pos.x, hit.pos.y,     hit.pos.z    );
+            glVertex3f(hit.pos.x, hit.pos.y    , hit.pos.z + 1);
+            glVertex3f(hit.pos.x, hit.pos.y + 1, hit.pos.z + 1);
+            glVertex3f(hit.pos.x, hit.pos.y + 1, hit.pos.z    );
+            break;
+
+        case Faces::Front:
+            glVertex3f(hit.pos.x,     hit.pos.y,     hit.pos.z + 1);
+            glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z + 1);
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z + 1);
+            glVertex3f(hit.pos.x,     hit.pos.y + 1, hit.pos.z + 1);
+            break;
+
+        case Faces::Back:
+            glVertex3f(hit.pos.x,      hit.pos.y,    hit.pos.z);
+            glVertex3f(hit.pos.x,      hit.pos.y+ 1, hit.pos.z);
+            glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z);
+            glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z);
+            break;
+    }
+
+    glEnd();
 
     glDisable(GL_BLEND);
 }

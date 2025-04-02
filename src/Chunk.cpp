@@ -12,14 +12,17 @@ Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_lev
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, x));
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, r));
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, u));
     glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, shadow));
+    glEnableVertexAttribArray(3);
 
     glBindVertexArray(0);
 }
@@ -30,7 +33,7 @@ void Chunk::render() {
     }
 
     glBindVertexArray(m_vao);
-    glDrawArrays(GL_QUADS, 0, m_vertices.size() / 8);
+    glDrawArrays(GL_QUADS, 0, m_vertices.size());
     glBindVertexArray(0);
 }
 
@@ -58,7 +61,7 @@ void Chunk::build() {
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), m_vertices.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(ChunkVertex), m_vertices.data(), GL_DYNAMIC_DRAW);
 }
 
 void Chunk::renderTile(const glm::vec3& pos, int tileID) {

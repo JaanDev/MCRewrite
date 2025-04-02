@@ -163,8 +163,12 @@ int Game::run() {
         hitResult = pick(cameraPosition, direction, level);
 
         if (hitResult.hit) {
+            float color[3];
+            glGetUniformfv(m_defaultShader, 1, color);
+            glUniform3f(1, 1.f, 1.f, 1.f);
             glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)std::sin(glfwGetTime() * 10.0) * 0.2f + 0.4f);
             level.renderHit(hitResult);
+            glUniform3fv(1, 1, color);
         }
         
         glfwSwapBuffers(m_window);

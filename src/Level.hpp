@@ -40,8 +40,4 @@ private:
     int m_width;
     int m_height;
     int m_depth;
-
-    GLuint m_hitVAO;
-    GLuint m_hitVBO;
-    std::vector<float> m_hitVertices;
 };
