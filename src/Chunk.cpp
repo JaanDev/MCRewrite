@@ -21,7 +21,7 @@ Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_lev
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, u));
     glEnableVertexAttribArray(2);
 
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, shadow));
+    glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(ChunkVertex), (void*)offsetof(ChunkVertex, shadow));
     glEnableVertexAttribArray(3);
 
     glBindVertexArray(0);
