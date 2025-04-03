@@ -70,6 +70,10 @@ int Game::run() {
 
     int texture = Textures::loadTexture("terrain.png", GL_NEAREST);
 
+    if (!texture) {
+        return -1;
+    }
+
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Timer timer(60);
@@ -79,9 +83,10 @@ int Game::run() {
     int frames = 0;
     auto lastTime = std::chrono::steady_clock::now();
     glm::dvec2 prevMouse;
-    glfwGetCursorPos(m_window, &prevMouse.x, &prevMouse.y);
     glm::dvec2 mouse;
     HitResult hitResult;
+
+    glfwGetCursorPos(m_window, &prevMouse.x, &prevMouse.y);
 
     while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
         timer.advanceTime();

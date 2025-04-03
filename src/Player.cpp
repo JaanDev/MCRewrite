@@ -1,14 +1,18 @@
 #include <Player.hpp>
 #include <Game.hpp>
 #include <algorithm>
+#include <impl/Math.hpp>
 
 Player::Player(Level& level)
     : m_level(level), m_pos(0.f), m_prevPos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
 
 void Player::resetPos() {
-    setPos({rand() % m_level.getWidth(), m_level.getDepth() + 3, rand() % m_level.getHeight()});
+    setPos({
+        Math::random() * m_level.getWidth(), 
+        m_level.getDepth() + 3, 
+        Math::random() * m_level.getHeight()
+    });
 }
-
 void Player::setPos(const glm::vec3& pos) {
     const float w = .3f;
     const float h = .9f;
