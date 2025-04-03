@@ -306,7 +306,13 @@ bool Level::load() {
         return false;
     }
 
-    std::vector<uint8_t> buf((std::istreambuf_iterator<uint8_t>(file)), std::istreambuf_iterator<uint8_t>());
+    std::vector<uint8_t> buf;
+    file.seekg(0, std::ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    
+    buf.resize(size);
+    file.read(buf.data(), size);
 
     stream.next_out = m_blocks.data();
     stream.avail_out = m_blocks.size();

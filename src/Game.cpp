@@ -250,9 +250,9 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
     // DDA (Digital Differential Analyzer)
     glm::ivec3 mapPos = glm::ivec3(floor(currentPos.x), floor(currentPos.y), floor(currentPos.z));
     glm::vec3 deltaDist = glm::vec3(
-        abs(1.0f / dir.x),
-        abs(1.0f / dir.y),
-        abs(1.0f / dir.z)
+        std::abs(1.0f / dir.x),
+        std::abs(1.0f / dir.y),
+        std::abs(1.0f / dir.z)
     );
     
     glm::ivec3 step;
