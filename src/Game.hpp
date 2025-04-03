@@ -23,7 +23,7 @@ public:
     GLuint createShader(const std::string_view& data, GLenum shaderType);
     GLuint createShaderProgram(const std::string_view& vertexData, const std::string_view& fragmentData);
 
-    HitResult pick(const glm::vec3& start, const glm::vec3& direction, Level& level);
+    HitResult pick(const glm::vec3 start, const glm::vec3& direction, Level& level);
 
 private:
     GLFWwindow* m_window;

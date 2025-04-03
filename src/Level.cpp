@@ -79,7 +79,7 @@ void Level::render(const glm::mat4& VP) {
 
 void Level::renderHit(const HitResult& hit) {
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glBegin(GL_QUADS);
 

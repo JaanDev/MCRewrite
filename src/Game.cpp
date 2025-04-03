@@ -168,6 +168,8 @@ int Game::run() {
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniform3fv(glGetUniformLocation(m_defaultShader, "cameraPos"), 1, glm::value_ptr(cameraPosition));
+        glUniform1i(glGetUniformLocation(m_defaultShader, "useUColor"), 0);
+        glUniform1i(glGetUniformLocation(m_defaultShader, "useTexture"), 1);
         glBindTexture(GL_TEXTURE_2D, texture);
 
         level.render(mvp);
@@ -175,12 +177,12 @@ int Game::run() {
         hitResult = pick(cameraPosition, direction, level);
 
         if (hitResult.hit) {
-            float color[3];
-            glGetUniformfv(m_defaultShader, 1, color);
-            glUniform3f(1, 1.f, 1.f, 1.f);
-            glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)std::sin(glfwGetTime() * 10.0) * 0.2f + 0.4f);
+            glUniform1i(glGetUniformLocation(m_defaultShader, "useUColor"), 1);
+            glUniform1i(glGetUniformLocation(m_defaultShader, "useTexture"), 0);
+            glUniform3f(glGetUniformLocation(m_defaultShader, "uColor"), 1.f, 1.f, 1.f);
+            glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)(std::sin(glfwGetTime() * 10) * 0.2f) + 0.4f);
+
             level.renderHit(hitResult);
-            glUniform3fv(1, 1, color);
         }
         
         glfwSwapBuffers(m_window);
@@ -248,7 +250,7 @@ GLuint Game::createShaderProgram(const std::string_view& vertexData, const std::
     return shaderProgram;
 }
 
-HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& level) {
+HitResult Game::pick(const glm::vec3 start, const glm::vec3& direction, Level& level) {
     HitResult result;
 
     const glm::vec3 dir = glm::normalize(direction);

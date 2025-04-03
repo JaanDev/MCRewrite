@@ -6,18 +6,17 @@ inline std::string_view vertexShader = R"(
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aUV;
-layout (location = 3) in float aShadow;
+layout (location = 3) in int aShadow;
 
 out vec3 fragColor;
-out float fragAlpha;
 out vec2 fragUV;
 out vec3 fragPos;
-out float fragShadow;
+flat out int fragShadow;
+
 out float fogFactor;
 
 uniform mat4 projection;
 uniform mat4 view;
-uniform float alpha;
 
 void main() {
     vec4 worldPos = vec4(aPos, 1.0);
@@ -30,28 +29,39 @@ void main() {
     fragPos = aPos;
     fragColor = aColor;
     fragUV = aUV;
-    fragAlpha = alpha;
     fragShadow = aShadow;
 })";
 
 inline std::string_view fragmentShader = R"(
 #version 330 core
 in vec3 fragColor;
-in float fragAlpha;
 in vec2 fragUV;
+flat in int fragShadow;
 
-in float fragShadow;
 in float fogFactor;
+
 out vec4 FragColor;
 
 uniform sampler2D tex;
+uniform float alpha;
+uniform vec3 uColor;
+uniform bool useUColor;
+uniform bool useTexture;
 
 void main() {
     const vec3 fogColor = vec3(14.f / 255.f, 11.f / 255.f, 10.f / 255.f);
 
-    vec4 color = texture(tex, fragUV) * vec4(fragColor, fragAlpha);
+    vec4 color = vec4(fragColor, alpha);
 
-    if (fragShadow != 0.0) {
+    if (useUColor) {
+        color = vec4(uColor, alpha);
+    }
+
+    if (useTexture) {
+        color *= texture(tex, fragUV);
+    }
+
+    if (fragShadow != 0) {
         color = fogFactor * color + (1.0 - fogFactor) * vec4(fogColor, 1.0);
     }
 
