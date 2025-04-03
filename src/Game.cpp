@@ -104,7 +104,7 @@ int Game::run() {
         static bool wasPressed1 = false;
         static bool wasPressed2 = false;
 
-        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
             if (!wasPressed1 && hitResult.hit) {
                 level.setTile(hitResult.pos, 0);
             }
@@ -113,7 +113,7 @@ int Game::run() {
             wasPressed1 = false;
         }
 
-        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS && hitResult.hit) {
+        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && hitResult.hit) {
             if (!wasPressed2 && hitResult.hit) {
                 auto pos = hitResult.pos;
 

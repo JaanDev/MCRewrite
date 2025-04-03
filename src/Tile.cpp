@@ -73,7 +73,6 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
         case Faces::Down:
             b = level.getBrightness(glm::vec3(pos.x, pos.y - 1, pos.z)) * shade.y;
             shadow = !(b == shade.y);
-            shadow = 1.f;
 
             vertices.insert(vertices.end(), {
                 {pos.x,     pos.y, pos.z,     b, b, b, minU, maxV, shadow},

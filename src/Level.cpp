@@ -120,8 +120,8 @@ void Level::renderHit(const HitResult& hit) {
             break;
 
         case Faces::Back:
-            glVertex3f(hit.pos.x,      hit.pos.y,    hit.pos.z);
-            glVertex3f(hit.pos.x,      hit.pos.y+ 1, hit.pos.z);
+            glVertex3f(hit.pos.x,     hit.pos.y,     hit.pos.z);
+            glVertex3f(hit.pos.x,     hit.pos.y + 1, hit.pos.z);
             glVertex3f(hit.pos.x + 1, hit.pos.y + 1, hit.pos.z);
             glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z);
             break;
