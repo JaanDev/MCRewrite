@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <GLFW/glfw3.h>
 #include <cmath>
 #include <ctime>
 #include <Timer.hpp>
@@ -103,6 +104,7 @@ int Game::run() {
         // Я ненавижу эти костыли
         static bool wasPressed1 = false;
         static bool wasPressed2 = false;
+        static bool wasPressedSave = false;
 
         if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
             if (!wasPressed1 && hitResult.hit) {
@@ -132,6 +134,13 @@ int Game::run() {
             wasPressed2 = true;
         } else {
             wasPressed2 = false;
+        }
+
+        if (glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
+            if (!wasPressedSave) level.save();
+            wasPressedSave = true;
+        } else {
+            wasPressedSave = false;
         }
     
 

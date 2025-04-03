@@ -22,11 +22,9 @@ void main() {
     vec4 worldPos = vec4(aPos, 1.0);
     gl_Position = projection * view * worldPos;
 
-    const float fogStart = -10.0;
-    const float fogEnd = 20.0;
-    float eyeDistance = -(view * worldPos).z;
-    
-    fogFactor = clamp((fogEnd - eyeDistance) / (fogEnd - fogStart), 0.0, 1.0);
+    vec4 viewPos = view * worldPos;
+    float distance = abs(viewPos.z);
+    fogFactor = exp(-0.2 * distance);
 
     fragPos = aPos;
     fragColor = aColor;

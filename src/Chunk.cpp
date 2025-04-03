@@ -38,9 +38,9 @@ void Chunk::render() {
 }
 
 void Chunk::build() {
-    // if (buildThisFrame == 2) {
-    //     return;
-    // }
+    if (buildThisFrame == 2) {
+        return;
+    }
 
     m_built = true;
     updates++;
