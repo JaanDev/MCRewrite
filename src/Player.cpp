@@ -77,11 +77,18 @@ void Player::move(const glm::vec3& delta) {
 
     for (auto& aabb : aabbs) {
         a.x = aabb.clipXCollide(m_aabb, a.x);
+    }
+    m_aabb.move(glm::vec3(a.x, 0.f, 0.f));
+
+    for (auto& aabb : aabbs) {
         a.y = aabb.clipYCollide(m_aabb, a.y);
+    }
+    m_aabb.move(glm::vec3(0.f, a.y, 0.f));
+
+    for (auto& aabb : aabbs) {
         a.z = aabb.clipZCollide(m_aabb, a.z);
     }
-
-    m_aabb.move(a);
+    m_aabb.move(glm::vec3(0.f, 0.f, a.z));
 
     m_onGround = org.y != a.y && org.y < 0.f;
 
