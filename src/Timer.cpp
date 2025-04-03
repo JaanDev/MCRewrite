@@ -12,7 +12,7 @@ void Timer::advanceTime() {
 
     m_passedTime += passedNS * m_timeScale * m_ticksPerSecond / 1.0e9f;
     m_ticks = std::min(100, static_cast<int>(m_passedTime));
-    m_passedTime -= m_ticks;
+    m_passedTime -= static_cast<float>(m_ticks);
     m_partialTicks = m_passedTime;
 }
 

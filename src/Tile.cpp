@@ -15,10 +15,10 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
             shadow = !(b == shade.z);
 
             vertices.insert(vertices.end(), {
-                {pos.x,     pos.y,     pos.z + 1, b, b, b, minU, minV, shadow},
-                {pos.x + 1, pos.y,     pos.z + 1, b, b, b, minU, maxV, shadow},
-                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, maxV, shadow},
-                {pos.x,     pos.y + 1, pos.z + 1, b, b, b, maxU, minV, shadow}
+                {pos.x,     pos.y,     pos.z + 1, b, b, b, minU, maxV, shadow},
+                {pos.x + 1, pos.y,     pos.z + 1, b, b, b, maxU, maxV, shadow},
+                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, minV, shadow},
+                {pos.x,     pos.y + 1, pos.z + 1, b, b, b, minU, minV, shadow}
             });
             break;
 
@@ -27,10 +27,10 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
             shadow = !(b == shade.z);
 
             vertices.insert(vertices.end(), {
-                {pos.x,     pos.y,     pos.z, b, b, b, maxU, minV, shadow},
-                {pos.x,     pos.y + 1, pos.z, b, b, b, minU, minV, shadow},
-                {pos.x + 1, pos.y + 1, pos.z, b, b, b, minU, maxV, shadow},
-                {pos.x + 1, pos.y,     pos.z, b, b, b, maxU, maxV, shadow}
+                {pos.x,     pos.y,     pos.z, b, b, b, maxU, maxV, shadow},
+                {pos.x,     pos.y + 1, pos.z, b, b, b, maxU, minV, shadow},
+                {pos.x + 1, pos.y + 1, pos.z, b, b, b, minU, minV, shadow},
+                {pos.x + 1, pos.y,     pos.z, b, b, b, minU, maxV, shadow}
             });
             break;
 
@@ -39,10 +39,10 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
             shadow = !(b == shade.x);
 
             vertices.insert(vertices.end(), {
-                {pos.x, pos.y,     pos.z,     b, b, b, maxU, minV, shadow},
-                {pos.x, pos.y,     pos.z + 1, b, b, b, minU, minV, shadow},
-                {pos.x, pos.y + 1, pos.z + 1, b, b, b, minU, maxV, shadow},
-                {pos.x, pos.y + 1, pos.z,     b, b, b, maxU, maxV, shadow}
+                {pos.x, pos.y,     pos.z,     b, b, b, minU, maxV, shadow},
+                {pos.x, pos.y,     pos.z + 1, b, b, b, maxU, maxV, shadow},
+                {pos.x, pos.y + 1, pos.z + 1, b, b, b, maxU, minV, shadow},
+                {pos.x, pos.y + 1, pos.z,     b, b, b, minU, minV, shadow}
             });
             break;
 
@@ -51,10 +51,10 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
             shadow = !(b == shade.x);
 
             vertices.insert(vertices.end(), {
-                {pos.x + 1, pos.y,     pos.z,     b, b, b, minU, maxV, shadow},
-                {pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, maxV, shadow},
-                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, minV, shadow},
-                {pos.x + 1, pos.y,     pos.z + 1, b, b, b, minU, minV, shadow}
+                {pos.x + 1, pos.y,     pos.z,     b, b, b, maxU, maxV, shadow},
+                {pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, minV, shadow},
+                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, minU, minV, shadow},
+                {pos.x + 1, pos.y,     pos.z + 1, b, b, b, minU, maxV, shadow}
             });
             break;
 
@@ -64,9 +64,9 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
 
             vertices.insert(vertices.end(), {
                 {pos.x,     pos.y + 1, pos.z + 1, b, b, b, minU, maxV, shadow},
-                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, minU, minV, shadow},
+                {pos.x + 1, pos.y + 1, pos.z + 1, b, b, b, maxU, maxV, shadow},
                 {pos.x + 1, pos.y + 1, pos.z,     b, b, b, maxU, minV, shadow},
-                {pos.x,     pos.y + 1, pos.z,     b, b, b, maxU, maxV, shadow}
+                {pos.x,     pos.y + 1, pos.z,     b, b, b, minU, minV, shadow}
             });
             break;
 
@@ -75,10 +75,10 @@ void Tile::renderFace(std::vector<ChunkVertex>& vertices, Level& level, int tile
             shadow = !(b == shade.y);
 
             vertices.insert(vertices.end(), {
-                {pos.x,     pos.y, pos.z,     b, b, b, minU, maxV, shadow},
-                {pos.x + 1, pos.y, pos.z,     b, b, b, minU, minV, shadow},
-                {pos.x + 1, pos.y, pos.z + 1, b, b, b, maxU, minV, shadow},
-                {pos.x,     pos.y, pos.z + 1, b, b, b, maxU, maxV, shadow}
+                {pos.x,     pos.y, pos.z,     b, b, b, minU, minV, shadow},
+                {pos.x + 1, pos.y, pos.z,     b, b, b, maxU, minV, shadow},
+                {pos.x + 1, pos.y, pos.z + 1, b, b, b, maxU, maxV, shadow},
+                {pos.x,     pos.y, pos.z + 1, b, b, b, minU, maxV, shadow}
             });
             break;
     }
