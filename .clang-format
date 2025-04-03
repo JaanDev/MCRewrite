@@ -4,7 +4,7 @@ AlignConsecutiveMacros: Consecutive
 # AlignEscapedNewlines: LeftWithLastLine
 AlignOperands: Align
 AlignTrailingComments:
-  Kind: Never
+  Kind: Always
 AllowShortLambdasOnASingleLine: Empty
 IndentWidth: 4
 ColumnLimit: 180
