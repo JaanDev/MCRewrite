@@ -30,7 +30,6 @@ int Game::run() {
 
     const int width = 1024;
     const int height = 768;
-    const glm::vec3 fogColor = {14.f / 255.f, 11.f / 255.f, 10.f / 255.f};
 
     if (!glfwInit()) {
         printf("GLFW init error!\n");
@@ -46,8 +45,8 @@ int Game::run() {
     }
 
     GLFWimage icon = {16, 16, (unsigned char*)LWJGL_ICON_DATA_16x16};
-
     glfwSetWindowIcon(m_window, 1, &icon);
+
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(0);
 
@@ -67,7 +66,6 @@ int Game::run() {
     glEnable(GL_CULL_FACE);
 
     m_defaultShader = createShaderProgram(vertexShader, fragmentShader);
-    glUniform3fv(glGetUniformLocation(m_defaultShader, "fogColor"), 1, glm::value_ptr(fogColor));
 
     int texture = Textures::loadTexture("terrain.png", GL_NEAREST);
 
@@ -89,10 +87,12 @@ int Game::run() {
 
     glfwGetCursorPos(m_window, &prevMouse.x, &prevMouse.y);
 
+    glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.05f, 1000.0f);
+
     while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
         timer.advanceTime();
 
-        for (int i = 0; i < timer.getTicks(); ++i) {
+        for (uint32_t i = 0; i < timer.getTicks(); ++i) {
             player.tick();
         }
 
@@ -142,12 +142,10 @@ int Game::run() {
         } else {
             wasPressedSave = false;
         }
-    
 
         // begin render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.05f, 1000.0f);
         auto rot = glm::radians(player.getRot());
         auto pos = player.getPos();
 

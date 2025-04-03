@@ -1,7 +1,8 @@
 #pragma once
 #include <string_view>
 
-inline std::string_view vertexShader = R"(#version 330 core
+inline std::string_view vertexShader = R"(
+#version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec2 aUV;
@@ -33,7 +34,8 @@ void main() {
     fragShadow = aShadow;
 })";
 
-inline std::string_view fragmentShader = R"(#version 330 core
+inline std::string_view fragmentShader = R"(
+#version 330 core
 in vec3 fragColor;
 in float fragAlpha;
 in vec2 fragUV;
@@ -43,9 +45,10 @@ in float fogFactor;
 out vec4 FragColor;
 
 uniform sampler2D tex;
-uniform vec3 fogColor;
 
 void main() {
+    const vec3 fogColor = vec3(14.f / 255.f, 11.f / 255.f, 10.f / 255.f);
+
     vec4 color = texture(tex, fragUV) * vec4(fragColor, fragAlpha);
 
     if (fragShadow != 0.0) {

@@ -27,8 +27,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/assets)
-    file(COPY ${CMAKE_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_BINARY_DIR}/)
-    # add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/assets/*" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/")
+    # file(COPY ${CMAKE_SOURCE_DIR}/assets/terrain.png DESTINATION ${CMAKE_BINARY_DIR}/)
+    # file(COPY ${CMAKE_SOURCE_DIR}/assets/terrain.png DESTINATION "$<TARGET_FILE_DIR:${PROJECT_NAME}>/")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/assets/terrain.png" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/")
 else()
     message("-- WARNING: Don't forget to copy resources from .jar file to assets folder!")
 endif()
