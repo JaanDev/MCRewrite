@@ -19,7 +19,7 @@ struct ChunkVertex {
     float x, y, z;
     float r, g, b;
     float u, v;
-    float shadow;
+    int shadow;
 };
 
 enum class Faces {
