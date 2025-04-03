@@ -146,14 +146,14 @@ int Game::run() {
         // begin render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        auto rot = glm::radians(player.getRot());
-        auto pos = player.getPos();
+        const auto& rot = glm::radians(player.getRot());
+        const auto& pos = player.getPos();
 
         glm::mat4 view = glm::identity<glm::mat4>();
         view = glm::translate(view, {0, 0, -0.3f});
         view = glm::rotate(view, glm::radians(-player.getRot().y), {1, 0, 0});
         view = glm::rotate(view, glm::radians(player.getRot().x + 90), {0, 1, 0});
-        view = glm::translate(view, -pos);
+        view = glm::translate(view, -(player.getPrevPos() + (player.getPos() - player.getPrevPos()) * timer.getPartialTicks()));
         glm::mat4 mvp = projection * view;
 
         glm::vec3 direction = glm::vec3(
