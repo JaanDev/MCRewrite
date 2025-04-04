@@ -14,6 +14,7 @@
 #include <Textures.hpp>
 #include <Chunk.hpp>
 #include <Icon.hpp>
+#include <impl/InputHelper.hpp>
 
 Game::Game() {}
 
@@ -49,6 +50,8 @@ int Game::run() {
 
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(0);
+    glfwSetKeyCallback(m_window, InputHelper::key_callback);
+    glfwSetMouseButtonCallback(m_window, InputHelper::mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         glfwTerminate();
@@ -101,46 +104,28 @@ int Game::run() {
         player.turn(glm::vec2(mouse.x - prevMouse.x, prevMouse.y - mouse.y));
         prevMouse = mouse;
 
-        // Я ненавижу эти костыли
-        static bool wasPressed1 = false;
-        static bool wasPressed2 = false;
-        static bool wasPressedSave = false;
-
-        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
-            if (!wasPressed1 && hitResult.hit) {
-                level.setTile(hitResult.pos, 0);
-            }
-            wasPressed1 = true;
-        } else {
-            wasPressed1 = false;
+        if (hitResult.hit && InputHelper::isMousePressed(GLFW_MOUSE_BUTTON_2)) {
+            level.setTile(hitResult.pos, 0);
         }
 
-        if (glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && hitResult.hit) {
-            if (!wasPressed2 && hitResult.hit) {
-                auto pos = hitResult.pos;
+        if (hitResult.hit && InputHelper::isMousePressed(GLFW_MOUSE_BUTTON_1)) {
+            auto pos = hitResult.pos;
 
-                // Get position of the tile using face direction
-                if (hitResult.face == Faces::Down) pos.y--;
-                if (hitResult.face == Faces::Up) pos.y++;
-                if (hitResult.face == Faces::Back) pos.z--;
-                if (hitResult.face == Faces::Front) pos.z++;
-                if (hitResult.face == Faces::Left) pos.x--;
-                if (hitResult.face == Faces::Right) pos.x++;
-        
-                // Set the tile
-                level.setTile(pos, 1);
-            }
-
-            wasPressed2 = true;
-        } else {
-            wasPressed2 = false;
+            // Get position of the tile using face direction
+            if (hitResult.face == Faces::Down) pos.y--;
+            if (hitResult.face == Faces::Up) pos.y++;
+            if (hitResult.face == Faces::Back) pos.z--;
+            if (hitResult.face == Faces::Front) pos.z++;
+            if (hitResult.face == Faces::Left) pos.x--;
+            if (hitResult.face == Faces::Right) pos.x++;
+    
+            // Set the tile
+            level.setTile(pos, 1);
         }
 
-        if (glfwGetKey(m_window, GLFW_KEY_ENTER) == GLFW_PRESS) {
-            if (!wasPressedSave) level.save();
-            wasPressedSave = true;
-        } else {
-            wasPressedSave = false;
+        if (InputHelper::isKeyPressed(GLFW_KEY_ENTER)) {
+            level.save();
+            std::cout << "hello" << std::endl;
         }
 
         // begin render

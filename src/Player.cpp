@@ -2,6 +2,7 @@
 #include <Game.hpp>
 #include <algorithm>
 #include <impl/Math.hpp>
+#include <impl/InputHelper.hpp>
 
 Player::Player(Level& level)
     : m_level(level), m_pos(0.f), m_prevPos(0.f), m_aabb(), m_rot(0.f), m_motion(0.f), m_onGround(false) { resetPos(); }
@@ -31,29 +32,27 @@ void Player::tick() {
     float forward, vertical;
     forward = vertical = 0.f;
 
-    auto window = Game::get().getWindow();
-
-    if (glfwGetKey(window, GLFW_KEY_R)) {
+    if (InputHelper::isKeyDown(GLFW_KEY_R)) {
         resetPos();
     }
 
-    if (glfwGetKey(window, GLFW_KEY_UP) || glfwGetKey(window, GLFW_KEY_W)) {
+    if (InputHelper::isKeyDown(GLFW_KEY_UP) || InputHelper::isKeyDown(GLFW_KEY_W)) {
         forward += 1.f;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_DOWN) || glfwGetKey(window, GLFW_KEY_S)) {
+    if (InputHelper::isKeyDown(GLFW_KEY_DOWN) || InputHelper::isKeyDown(GLFW_KEY_S)) {
         forward -= 1.f;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT) || glfwGetKey(window, GLFW_KEY_A)) {
+    if (InputHelper::isKeyDown(GLFW_KEY_LEFT) || InputHelper::isKeyDown(GLFW_KEY_A)) {
         vertical -= 1.f;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) || glfwGetKey(window, GLFW_KEY_D)) {
+    if (InputHelper::isKeyDown(GLFW_KEY_RIGHT) || InputHelper::isKeyDown(GLFW_KEY_D)) {
         vertical += 1.f;
     }
 
-    if ((glfwGetKey(window, GLFW_KEY_SPACE) || glfwGetKey(window, GLFW_KEY_LEFT_SUPER)) && m_onGround)
+    if ((InputHelper::isKeyDown(GLFW_KEY_SPACE) || InputHelper::isKeyDown(GLFW_KEY_LEFT_SUPER)) && m_onGround)
         m_motion.y = .12f;
 
     moveRelative(forward, vertical, m_onGround ? .02f : .005f);
