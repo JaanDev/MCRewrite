@@ -1,64 +1,51 @@
 #include <impl/InputHelper.hpp>
-#include <unordered_map>
-
-// keyID, isPressed
-std::unordered_map<int, bool> keyStates;
-std::unordered_map<int, bool> mouseStates;
-
-bool InputHelper::isKeyDown(int key) {
-    return keyStates.find(key) != keyStates.end();
-}
-
-bool InputHelper::isKeyPressed(int key) {
-    auto it = keyStates.find(key);
-
-    if (it != keyStates.end() && !it->second) {
-        it->second = true;
-        return true;
-    }
-
-    return false;
-}
+#include <array>
+#include "Game.hpp"
 
 bool InputHelper::isMouseDown(int button) {
-    return mouseStates.find(button) != mouseStates.end();
+    return glfwGetMouseButton(Game::get().getWindow(), button);
+}
+
+bool InputHelper::isKeyDown(int key) {
+    return glfwGetKey(Game::get().getWindow(), key);
 }
 
 bool InputHelper::isMousePressed(int button) {
-    auto it = mouseStates.find(button);
+    static std::array<bool, GLFW_MOUSE_BUTTON_LAST> lastMouseButtons = {false};
 
-    if (it != mouseStates.end() && !it->second) {
-        it->second = true;
+    bool isPressedNow = InputHelper::isMouseDown(button);
+    bool wasPressedBefore = lastMouseButtons[button];
+    
+    if (isPressedNow) {
+        if (wasPressedBefore)
+            return false;
+
+        lastMouseButtons[button] = true;
+
         return true;
     }
+
+    lastMouseButtons[button] = false;
 
     return false;
 }
 
-void InputHelper::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_UNKNOWN) {
-        return;
-    }
-    
-    auto it = keyStates.find(key);
+bool InputHelper::isKeyPressed(int key) {
+    static std::array<bool, GLFW_KEY_LAST> lastKeys = {false};
 
-    if (action == GLFW_PRESS && it == keyStates.end()) {
-        keyStates.insert(std::make_pair(key, false));
-    }
+    bool isPressedNow = InputHelper::isKeyDown(key);
+    bool wasPressedBefore = lastKeys[key];
     
-    if (action == GLFW_RELEASE && it != keyStates.end()) {
-        keyStates.erase(key);
-    }
-}
+    if (isPressedNow) {
+        if (wasPressedBefore)
+            return false;
 
-void InputHelper::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    auto it = mouseStates.find(button);
+        lastKeys[key] = true;
 
-    if (action == GLFW_PRESS && it == mouseStates.end()) {
-        mouseStates.insert(std::make_pair(button, false));
+        return true;
     }
-    
-    if (action == GLFW_RELEASE && it != mouseStates.end()) {
-        mouseStates.erase(button);
-    }
+
+    lastKeys[key] = false;
+
+    return false;
 }

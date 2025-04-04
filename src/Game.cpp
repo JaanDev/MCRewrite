@@ -27,8 +27,6 @@ int Game::run() {
 
     hasStarted = true;
 
-    srand(time(0));
-
     const int width = 1024;
     const int height = 768;
 
@@ -50,8 +48,6 @@ int Game::run() {
 
     glfwMakeContextCurrent(m_window);
     glfwSwapInterval(0);
-    glfwSetKeyCallback(m_window, InputHelper::key_callback);
-    glfwSetMouseButtonCallback(m_window, InputHelper::mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         glfwTerminate();
@@ -125,7 +121,6 @@ int Game::run() {
 
         if (InputHelper::isKeyPressed(GLFW_KEY_ENTER)) {
             level.save();
-            std::cout << "hello" << std::endl;
         }
 
         // begin render
