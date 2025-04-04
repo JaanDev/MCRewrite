@@ -2,11 +2,19 @@
 An open source Minecraft Java Edition rewrite in C++ using OpenGL focused on matching the original game as close as possible.  
 This branch version is rd-132211.
 
+## Demonstration
+<img src="https://i.postimg.cc/yx2bc1ym/screenshot1.png" width="49.7%">
+<img src="https://i.postimg.cc/QdQyKr97/screenshot2.png" width="49.7%">
+<img src="https://i.postimg.cc/9Q5kffMV/screenshot3.png" width="49.7%">
+<img src="https://i.postimg.cc/c48jZ3dX/screenshot4.png" width="49.7%">
+
+*The screenshots were made with original Minecraft assets for demonstration purposes. These assets are not included in the project and are property of Mojang/Microsoft.*
+
 ## What do we want it to be?
 This is meant to be a 1:1 user experience rewrite/decompilation (the game look and gameplay must match) but the code may not match with the original as we are using modern C++ and OpenGL features and trying to improve the original code structure.
 
 ## How did we do that?
-We used a decompilation of the Java Minecraft binary and tried to rewrite it in C++ but with our own modifications.
+We used a decompilation of the Java Minecraft (RubyDung) binary and tried to rewrite it in C++ but with our own modifications.
 
 ## Is it better?
 It runs much faster and you can see no difference between our recreation and the original game.
