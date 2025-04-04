@@ -34,17 +34,9 @@ Level::Level(int width, int height, int depth) : m_width(width), m_height(height
     for (int x = 0; x < chunkCount.x; x++) {
         for (int y = 0; y < chunkCount.y; y++) {
             for (int z = 0; z < chunkCount.z; z++) {
-                glm::ivec3 min = {
-                    x * CHUNK_SIZE,
-                    y * CHUNK_SIZE,
-                    z * CHUNK_SIZE
-                };
+                glm::ivec3 min = {x * CHUNK_SIZE, y * CHUNK_SIZE, z * CHUNK_SIZE};
 
-                glm::ivec3 max = {
-                    std::min(m_width, (x + 1) * CHUNK_SIZE),
-                    std::min(m_depth, (y + 1) * CHUNK_SIZE),
-                    std::min(m_height, (z + 1) * CHUNK_SIZE)
-                };
+                glm::ivec3 max = {std::min(m_width, (x + 1) * CHUNK_SIZE), std::min(m_depth, (y + 1) * CHUNK_SIZE), std::min(m_height, (z + 1) * CHUNK_SIZE)};
 
                 m_chunks[(x + y * chunkCount.x) * chunkCount.z + z] = std::make_shared<Chunk>(*this, min, max);
             }
@@ -83,6 +75,7 @@ void Level::renderHit(const HitResult& hit) {
 
     glBegin(GL_QUADS);
 
+    // clang-format off
     switch (hit.face) {
         case Faces::Up:
             glVertex3f(hit.pos.x,     hit.pos.y + 1, hit.pos.z + 1);
@@ -126,6 +119,7 @@ void Level::renderHit(const HitResult& hit) {
             glVertex3f(hit.pos.x + 1, hit.pos.y,     hit.pos.z);
             break;
     }
+    // clang-format on
 
     glEnd();
 
@@ -227,7 +221,7 @@ std::vector<AABB> Level::getCubes(const AABB& other) {
     if (pos1.y > m_depth) {
         pos1.y = m_depth;
     }
-    
+
     if (pos1.z > m_height) {
         pos1.z = m_height;
     }
@@ -257,14 +251,7 @@ void Level::save() {
     stream.next_in = m_blocks.data();
     stream.avail_in = m_blocks.size();
 
-    int status = mz_deflateInit2(
-        &stream,
-        MZ_DEFAULT_COMPRESSION,
-        MZ_DEFLATED,
-        -MZ_DEFAULT_WINDOW_BITS,
-        9,
-        MZ_DEFAULT_STRATEGY
-    );
+    int status = mz_deflateInit2(&stream, MZ_DEFAULT_COMPRESSION, MZ_DEFLATED, -MZ_DEFAULT_WINDOW_BITS, 9, MZ_DEFAULT_STRATEGY);
 
     if (status != MZ_OK) {
         std::cerr << "GZIP init failed: " << zError(status) << std::endl;
@@ -310,7 +297,7 @@ bool Level::load() {
     file.seekg(0, std::ios::end);
     size_t size = file.tellg();
     file.seekg(0, std::ios::beg);
-    
+
     buf.resize(size);
     file.read(buf.data(), size);
 

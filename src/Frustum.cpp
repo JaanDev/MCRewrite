@@ -8,7 +8,7 @@ void Frustum::calculateFrustum(const glm::mat4& mvp) {
     m_planes[LEFT].normal.y = mvp[1][3] + mvp[1][0];
     m_planes[LEFT].normal.z = mvp[2][3] + mvp[2][0];
     m_planes[LEFT].distance = mvp[3][3] + mvp[3][0];
-    
+
     m_planes[RIGHT].normal.x = mvp[0][3] - mvp[0][0];
     m_planes[RIGHT].normal.y = mvp[1][3] - mvp[1][0];
     m_planes[RIGHT].normal.z = mvp[2][3] - mvp[2][0];
@@ -45,12 +45,14 @@ void Frustum::calculateFrustum(const glm::mat4& mvp) {
 bool Frustum::cubeInFrustum(const glm::vec3& min, const glm::vec3& max) {
     glm::vec3 center = (min + max) * 0.5f;
     glm::vec3 extents = max - center;
-    
+
     for (const auto& plane : m_planes) {
         float radius = glm::dot(extents, glm::abs(plane.normal));
         float distance = glm::dot(plane.normal, center) + plane.distance;
-        
-        if (distance < -radius) return false;
+
+        if (distance < -radius) {
+            return false;
+        }
     }
 
     return true;

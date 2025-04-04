@@ -20,7 +20,7 @@ int Textures::loadTexture(const std::string& resourceName, int mode) {
 
     int width, height, channels;
     unsigned char* data = stbi_load(resourceName.c_str(), &width, &height, &channels, 4);
-    
+
     if (!data) {
         std::cerr << "Texture load failed: " << resourceName << std::endl;
         return 0;

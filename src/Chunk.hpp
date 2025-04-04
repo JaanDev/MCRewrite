@@ -23,10 +23,10 @@ public:
 
 private:
     Level& m_level;
-    
+
     glm::ivec3 m_min;
     glm::ivec3 m_max;
-    
+
     bool m_built;
 
     std::vector<ChunkVertex> m_vertices;

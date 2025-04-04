@@ -96,7 +96,7 @@ int Game::run() {
         }
 
         glfwGetCursorPos(m_window, &mouse.x, &mouse.y);
-        
+
         player.turn(glm::vec2(mouse.x - prevMouse.x, prevMouse.y - mouse.y));
         prevMouse = mouse;
 
@@ -108,13 +108,25 @@ int Game::run() {
             auto pos = hitResult.pos;
 
             // Get position of the tile using face direction
-            if (hitResult.face == Faces::Down) pos.y--;
-            if (hitResult.face == Faces::Up) pos.y++;
-            if (hitResult.face == Faces::Back) pos.z--;
-            if (hitResult.face == Faces::Front) pos.z++;
-            if (hitResult.face == Faces::Left) pos.x--;
-            if (hitResult.face == Faces::Right) pos.x++;
-    
+            if (hitResult.face == Faces::Down) {
+                pos.y--;
+            }
+            if (hitResult.face == Faces::Up) {
+                pos.y++;
+            }
+            if (hitResult.face == Faces::Back) {
+                pos.z--;
+            }
+            if (hitResult.face == Faces::Front) {
+                pos.z++;
+            }
+            if (hitResult.face == Faces::Left) {
+                pos.x--;
+            }
+            if (hitResult.face == Faces::Right) {
+                pos.x++;
+            }
+
             // Set the tile
             level.setTile(pos, 1);
         }
@@ -136,11 +148,7 @@ int Game::run() {
         view = glm::translate(view, -(player.getPrevPos() + (player.getPos() - player.getPrevPos()) * timer.getPartialTicks()));
         glm::mat4 mvp = projection * view;
 
-        glm::vec3 direction = glm::vec3(
-            cos(rot.x) * cos(rot.y), 
-            sin(rot.y), 
-            sin(rot.x) * cos(rot.y)
-        );
+        glm::vec3 direction = glm::vec3(cos(rot.x) * cos(rot.y), sin(rot.y), sin(rot.x) * cos(rot.y));
 
         glm::vec3 cameraPosition = glm::vec3(pos.x, pos.y, pos.z);
 
@@ -164,7 +172,7 @@ int Game::run() {
 
             level.renderHit(hitResult);
         }
-        
+
         glfwSwapBuffers(m_window);
         glfwPollEvents();
         // end render
@@ -174,7 +182,7 @@ int Game::run() {
         auto currentTime = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastTime).count() >= 1000) {
             std::cout << frames << " fps, " << Chunk::updates << std::endl;
-            
+
             Chunk::updates = 0;
             lastTime = currentTime;
             frames = 0;
@@ -235,18 +243,14 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
 
     const glm::vec3 dir = glm::normalize(direction);
     glm::vec3 currentPos = start;
-    
+
     // DDA (Digital Differential Analyzer)
     glm::ivec3 mapPos = glm::ivec3(floor(currentPos.x), floor(currentPos.y), floor(currentPos.z));
-    glm::vec3 deltaDist = glm::vec3(
-        std::abs(1.0f / dir.x),
-        std::abs(1.0f / dir.y),
-        std::abs(1.0f / dir.z)
-    );
-    
+    glm::vec3 deltaDist = glm::vec3(std::abs(1.0f / dir.x), std::abs(1.0f / dir.y), std::abs(1.0f / dir.z));
+
     glm::ivec3 step;
     glm::vec3 sideDist;
-    
+
     for (int i = 0; i < 3; ++i) {
         if (dir[i] < 0) {
             step[i] = -1;
@@ -256,7 +260,7 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
             sideDist[i] = (mapPos[i] + 1.0f - currentPos[i]) * deltaDist[i];
         }
     }
-    
+
     // DDA cycle
     float traveled = 0.0f;
     while (traveled < 3.0f) {
@@ -276,13 +280,13 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
             mapPos.z += step.z;
             result.face = step.z < 0 ? Faces::Front : Faces::Back;
         }
-        
+
         if (level.isSolidTile(mapPos)) {
             result.hit = true;
             result.pos = mapPos;
             break;
         }
     }
-    
+
     return result;
 }

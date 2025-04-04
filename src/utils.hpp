@@ -8,7 +8,6 @@ struct ChunkVertex {
     int shadow;
 };
 
-
 enum class Faces {
     Up,    // y+
     Down,  // y-

@@ -3,4 +3,4 @@
 
 namespace Math {
     double random();
-};
+}

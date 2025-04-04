@@ -12,7 +12,7 @@ public:
     float clipYCollide(AABB& other, float ya);
     float clipZCollide(AABB& other, float za);
     bool intersects(AABB& other);
-    
+
     void move(const glm::vec3& delta);
 
     inline const glm::vec3& min() const { return m_min; }

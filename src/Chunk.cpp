@@ -7,7 +7,7 @@ Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_lev
     glGenBuffers(1, &m_vbo);
 
     glBindVertexArray(m_vao);
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
@@ -52,7 +52,7 @@ void Chunk::build() {
                 // Is a tile at this location?
                 if (m_level.isSolidTile({x, y, z})) {
                     int id = (y != m_level.getDepth() * 2 / 3) ? 1 : 0;
-    
+
                     renderTile(glm::ivec3(x, y, z), id);
                 }
             }
