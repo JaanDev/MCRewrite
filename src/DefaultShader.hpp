@@ -4,11 +4,11 @@
 inline std::string_view vertexShader = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aColor;
+layout (location = 1) in float aBrightness;
 layout (location = 2) in vec2 aUV;
 layout (location = 3) in int aShadow;
 
-out vec3 fragColor;
+out float fragBrightness;
 out vec2 fragUV;
 out vec3 fragPos;
 flat out int fragShadow;
@@ -27,14 +27,14 @@ void main() {
     fogFactor = exp(-0.2 * distance);
 
     fragPos = aPos;
-    fragColor = aColor;
+    fragBrightness = aBrightness;
     fragUV = aUV;
     fragShadow = aShadow;
 })";
 
 inline std::string_view fragmentShader = R"(
 #version 330 core
-in vec3 fragColor;
+in float fragBrightness;
 in vec2 fragUV;
 flat in int fragShadow;
 
@@ -51,7 +51,7 @@ uniform bool useTexture;
 void main() {
     const vec3 fogColor = vec3(14.f / 255.f, 11.f / 255.f, 10.f / 255.f);
 
-    vec4 color = vec4(fragColor, alpha);
+    vec4 color = vec4(fragBrightness, fragBrightness, fragBrightness, alpha);
 
     if (useUColor) {
         color = vec4(uColor, alpha);
