@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cmath>
 #include <cstdint>
 #include <chrono>
 
 // https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/java/util/Random.java
 
 class Random {
-  private:
+private:
     uint64_t seed;
     static const uint64_t multiplier = 0x5DEECE66DLL;
     static const uint64_t addend = 0xBLL;
@@ -26,7 +25,7 @@ class Random {
         return curSeedUniquifier;
     }
 
-  public:
+public:
     Random(uint64_t seed) { this->seed = (seed ^ multiplier) & mask; }
 
     Random() : Random(Random::seedUniquifier() ^ std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count()) {}

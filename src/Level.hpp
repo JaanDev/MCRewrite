@@ -17,17 +17,17 @@ public:
     void render(const glm::mat4& VP);
     void renderHit(const HitResult& hit);
 
-    bool isSolidTile(glm::ivec3 pos);
+    bool isSolidTile(const glm::ivec3& pos);
     void calcLightDepths(int minX, int minZ, int maxX, int maxZ);
     void rebuildChunks(glm::ivec3 min, glm::ivec3 max);
 
-    void setTile(glm::ivec3 pos, int id);
+    void setTile(const glm::ivec3& pos, int id);
     float getBrightness(const glm::ivec3& pos);
     std::vector<AABB> getCubes(const AABB& other);
 
-    auto getWidth() const { return m_width; }
-    auto getHeight() const { return m_height; }
-    auto getDepth() const { return m_depth; }
+    inline auto getWidth() const { return m_width; }
+    inline auto getHeight() const { return m_height; }
+    inline auto getDepth() const { return m_depth; }
 
     void save();
     bool load();

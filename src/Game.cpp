@@ -230,7 +230,7 @@ GLuint Game::createShaderProgram(const std::string_view& vertexData, const std::
     return shaderProgram;
 }
 
-HitResult Game::pick(const glm::vec3 start, const glm::vec3& direction, Level& level) {
+HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& level) {
     HitResult result;
 
     const glm::vec3 dir = glm::normalize(direction);

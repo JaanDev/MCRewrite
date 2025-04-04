@@ -20,7 +20,7 @@ AlwaysBreakTemplateDeclarations: Yes
 PointerAlignment: Left
 QualifierAlignment: Left
 ReferenceAlignment: Left
-# ReflowComments: IndentOnly
+ReflowComments: IndentOnly # ?
 SpaceAroundPointerQualifiers: Before
 SpaceBeforeCaseColon: false
 SpaceBeforeCpp11BracedList: true
@@ -38,8 +38,8 @@ NamespaceIndentation: All
 SortIncludes: Never
 AlwaysBreakBeforeMultilineStrings: false
 BinPackArguments: true
-# BinPackLongBracedList: true
-# BinPackParameters: BinPack
+# BinPackLongBracedList: true # ?
+BinPackParameters: BinPack # ?
 BitFieldColonSpacing: Both
 BraceWrapping:
   AfterCaseLabel: false
@@ -62,18 +62,19 @@ EmptyLineBeforeAccessModifier: LogicalBlock
 IndentAccessModifiers: false
 IndentPPDirectives: BeforeHash
 InsertBraces: true
-# KeepEmptyLines:
-#   AtEndOfFile: false
-#   AtStartOfBlock: false
-#   AtStartOfFile: false
+KeepEmptyLines: # ?
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: false
 LineEnding: LF
 PPIndentWidth: 4
 PackConstructorInitializers: BinPack
 RemoveBracesLLVM: false
-# RemoveEmptyLinesInUnwrappedLines: true
+RemoveEmptyLinesInUnwrappedLines: true # ?
 RemoveParentheses: MultipleParentheses
 RemoveSemicolon: true
-# SeparateDefinitionBlocks: Always
+# SeparateDefinitionBlocks: Always # dont use
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
+AccessModifierOffset: -4

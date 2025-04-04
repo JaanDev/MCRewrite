@@ -54,7 +54,7 @@ Level::Level(int width, int height, int depth) : m_width(width), m_height(height
     calcLightDepths(0, 0, width, height);
 }
 
-bool Level::isSolidTile(glm::ivec3 pos) {
+bool Level::isSolidTile(const glm::ivec3& pos) {
     if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= m_width || pos.y >= m_depth || pos.z >= m_height) {
         return false;
     }
@@ -176,7 +176,7 @@ void Level::rebuildChunks(glm::ivec3 min, glm::ivec3 max) {
     }
 }
 
-void Level::setTile(glm::ivec3 pos, int id) {
+void Level::setTile(const glm::ivec3& pos, int id) {
     if (pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= m_width || pos.y >= m_depth || pos.z >= m_height) {
         return;
     }

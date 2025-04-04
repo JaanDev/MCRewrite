@@ -15,10 +15,11 @@ bool InputHelper::isMousePressed(int button) {
 
     bool isPressedNow = InputHelper::isMouseDown(button);
     bool wasPressedBefore = lastMouseButtons[button];
-    
+
     if (isPressedNow) {
-        if (wasPressedBefore)
+        if (wasPressedBefore) {
             return false;
+        }
 
         lastMouseButtons[button] = true;
 
@@ -35,10 +36,11 @@ bool InputHelper::isKeyPressed(int key) {
 
     bool isPressedNow = InputHelper::isKeyDown(key);
     bool wasPressedBefore = lastKeys[key];
-    
+
     if (isPressedNow) {
-        if (wasPressedBefore)
+        if (wasPressedBefore) {
             return false;
+        }
 
         lastKeys[key] = true;
 

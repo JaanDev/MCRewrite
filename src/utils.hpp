@@ -1,5 +1,4 @@
 #pragma once
-#include <cstdint>
 #include <glm/glm.hpp>
 
 struct ChunkVertex {
@@ -25,15 +24,3 @@ struct HitResult {
     glm::ivec3 pos;
     Faces face;
 };
-
-// #define DO_TIME_MEASURING
-
-#ifdef DO_TIME_MEASURING
-    #define TIME_MEASURE_BEGIN(name) auto name##_begin = std::chrono::system_clock::now();
-    #define TIME_MEASURE_END(name)   auto name##_end = std::chrono::system_clock::now();
-    #define TIME_MEASURE_DBG(name)   logD("Time measure for " #name ": {} millis", std::chrono::duration_cast<std::chrono::microseconds>(name##_end - name##_begin).count() / 1000.f);
-#else
-    #define TIME_MEASURE_BEGIN(name)
-    #define TIME_MEASURE_END(name)
-    #define TIME_MEASURE_DBG(name)
-#endif

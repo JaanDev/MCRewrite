@@ -19,7 +19,7 @@ public:
     void renderTile(const glm::vec3& pos, int tileID);
 
     inline void rebuild() { m_built = false; }
-    inline const AABB getBounds() { return AABB(m_min, m_max); }
+    inline AABB getBounds() const { return AABB(m_min, m_max); }
 
 private:
     Level& m_level;

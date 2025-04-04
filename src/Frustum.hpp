@@ -18,9 +18,6 @@ struct FrustumPlane {
 
 class Frustum {
 private:
-    // float m_frustum[6][4];
-    // std::vector<float> m_modl_b;
-    // std::vector<float> m_proj_b;
     std::vector<FrustumPlane> m_planes;
 
 public:
@@ -33,10 +30,6 @@ public:
 
     void calculateFrustum(const glm::mat4& mvp);
 
-    // void normalizePlane(float frustum[6][4], FrustumSide side);
-    // void calculateFrustum();
-    // bool pointInFrustum(const glm::vec3& pos);
-    // bool sphereInFrustum(const glm::vec3& pos, float radius);
     bool cubeInFrustum(const glm::vec3& min, const glm::vec3& max);
     bool cubeInFrustum(const AABB& aabb);
 };

@@ -1,6 +1,5 @@
 #include "Chunk.hpp"
 #include <utils.hpp>
-#include <iostream>
 #include <Tile.hpp>
 
 Chunk::Chunk(Level& level, const glm::ivec3& min, const glm::ivec3& max) : m_level(level), m_min(min), m_max(max), m_built(false) {
