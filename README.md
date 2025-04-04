@@ -3,10 +3,12 @@ An open source Minecraft Java Edition rewrite in C++ using OpenGL focused on mat
 This branch version is rd-132211.
 
 ## Demonstration
-<img src="https://i.postimg.cc/yx2bc1ym/screenshot1.png" width="47%" align="left">
-<img src="https://i.postimg.cc/QdQyKr97/screenshot2.png" width="47%" align="right">
-<img src="https://i.postimg.cc/9Q5kffMV/screenshot3.png" width="47%" align="left">
-<img src="https://i.postimg.cc/c48jZ3dX/screenshot4.png" width="47%" align="right">
+<p align="center">
+    <img src="https://i.postimg.cc/yx2bc1ym/screenshot1.png" width="47%">
+    <img src="https://i.postimg.cc/QdQyKr97/screenshot2.png" width="47%">
+    <img src="https://i.postimg.cc/9Q5kffMV/screenshot3.png" width="47%">
+    <img src="https://i.postimg.cc/c48jZ3dX/screenshot4.png" width="47%">
+</p>
 
 *The screenshots were made with original Minecraft assets for demonstration purposes. These assets are not included in the project and are property of Mojang/Microsoft.*
 
