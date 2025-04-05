@@ -3,7 +3,7 @@
 #include <impl/Math.hpp>
 #include <impl/InputHelper.hpp>
 
-Entity::Entity(Level& level) : m_level(level), m_pos(0.f), m_poso(0.f), m_bb(), m_rot(0.f), m_motion(0.f), m_onGround(false), m_heightOffset(0.f) {
+Entity::Entity(Level& level) : m_level(level), m_pos(0.f), m_prevPos(0.f), m_bb(), m_rot(0.f), m_motion(0.f), m_onGround(false), m_heightOffset(0.f) {
     resetPos();
 }
 
@@ -25,7 +25,7 @@ void Entity::turn(const glm::vec2& delta) {
 }
 
 void Entity::tick() {
-    m_poso = m_pos;
+    m_prevPos = m_pos;
 }
 
 void Entity::move(const glm::vec3& delta) {

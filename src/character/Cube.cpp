@@ -3,57 +3,118 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <Game.hpp>
 
-Cube::Cube(const glm::ivec2& textureOffset) : m_texOff(textureOffset) {
-    glGenVertexArrays(1, &m_vao);
-    glBindVertexArray(m_vao);
+Cube::Cube() : m_pos(0), m_rot(0), m_size(0) {}
 
-    glGenBuffers(1, &m_vbo);
+void Cube::init(const glm::ivec2& textureOffset, const glm::vec3& pos, const glm::vec3& size, Vertex* where) { // w h d
+    // for (int x = 0; x < 2; x++) {
+    //     for (int y = 0; y < 2; y++) {
+    //         for (int z = 0; z < 2; z++) {
+    //             where->u = (textureOffset.x + ) / 64.0f;
+    //             where++;
+    //         }
+    //     }
+    // }
+    auto w = size.x;
+    auto h = size.y;
+    auto d = size.z;
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
-    glEnableVertexAttribArray(0);
+    float u0, v0, u1, v1;
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-    glEnableVertexAttribArray(2);
+    // u1 v0
+    // u0 v0
+    // u0 v1
+    // u1 v1
 
-    glBindVertexArray(0);
+    Vertex* where_ = where;
+
+    // 0
+    u0 = textureOffset.x + d + w;
+    v0 = textureOffset.y + d;
+    u1 = u0 + d;
+    v1 = v0 + h;
+    where[0] = {w, 0, d, u1, v0};
+    where[1] = {w, 0, 0, u0, v0};
+    where[2] = {w, h, 0, u0, v1};
+    where[3] = {w, h, d, u1, v1};
+    where += 4;
+    // 1
+    u0 = textureOffset.x;
+    v0 = textureOffset.y + d;
+    u1 = u0 + d;
+    v1 = v0 + h;
+    where[0] = {0, 0, 0, u1, v0};
+    where[1] = {0, 0, d, u0, v0};
+    where[2] = {0, h, d, u0, v1};
+    where[3] = {0, h, 0, u1, v1};
+    where += 4;
+    // 2
+    u0 = textureOffset.x + d;
+    v0 = textureOffset.y;
+    u1 = u0 + w;
+    v1 = v0 + d;
+    where[0] = {w, 0, d, u1, v0};
+    where[1] = {0, 0, d, u0, v0};
+    where[2] = {0, 0, 0, u0, v1};
+    where[3] = {w, 0, 0, u1, v1};
+    where += 4;
+    // 4
+    u0 = textureOffset.x + d + w;
+    v0 = textureOffset.y;
+    u1 = u0 + w;
+    v1 = v0 + d;
+    where[0] = {w, h, 0, u1, v0};
+    where[1] = {0, h, 0, u0, v0};
+    where[2] = {0, h, d, u0, v1};
+    where[3] = {w, h, d, u1, v1};
+    where += 4;
+    // 5
+    u0 = textureOffset.x + d;
+    v0 = textureOffset.y + d;
+    u1 = u0 + w;
+    v1 = v0 + h;
+    where[0] = {w, 0, 0, u1, v0};
+    where[1] = {0, 0, 0, u0, v0};
+    where[2] = {0, h, 0, u0, v1};
+    where[3] = {w, h, 0, u1, v1};
+    where += 4;
+    // 6
+    u0 = textureOffset.x + d + w + d;
+    v0 = textureOffset.y + d;
+    u1 = u0 + w;
+    v1 = v0 + h;
+    where[0] = {0, 0, d, u1, v0};
+    where[1] = {w, 0, d, u0, v0};
+    where[2] = {w, h, d, u0, v1};
+    where[3] = {0, h, d, u1, v1};
+    where += 4;
+
+    for (int i = 0; i < 24; i++) {
+        where_[i].x += pos.x;
+        where_[i].y += pos.y;
+        where_[i].z += pos.z;
+    }
 }
 
-void Cube::addBox(const glm::vec3& pos0, const glm::ivec3& size) {
-    glm::vec3 pos1 = pos0 + glm::vec3(size);
-
-    Vertex u0 = {pos0.x, pos0.y, pos0.z, 0.0f, 0.0f};
-    Vertex u1 = {pos1.x, pos0.y, pos0.z, 0.0f, 8.0f};
-    Vertex u2 = {pos1.x, pos1.y, pos0.z, 8.0f, 8.0f};
-    Vertex u3 = {pos0.x, pos1.y, pos0.z, 8.0f, 0.0f};
-    Vertex l0 = {pos0.x, pos0.y, pos1.z, 0.0f, 0.0f};
-    Vertex l1 = {pos1.x, pos0.y, pos1.z, 0.0f, 8.0f};
-    Vertex l2 = {pos1.x, pos1.y, pos1.z, 8.0f, 8.0f};
-    Vertex l3 = {pos0.x, pos1.y, pos1.z, 8.0f, 0.0f};
-
-    std::array<Polygon, 6> polygons = {
-        Polygon({l1, u1, u2, l2}, m_texOff.x + size.z + size.x, m_texOff.y + size.z, m_texOff.x + size.z + size.z + size.z, m_texOff.y + size.z + size.y),
-        Polygon({u0, l0, l3, u3}, m_texOff.x + 0, m_texOff.y + size.z, m_texOff.x + size.z, m_texOff.y + size.z + size.y),
-        Polygon({l1, l0, u0, u1}, m_texOff.x + size.z, m_texOff.y + 0, m_texOff.x + size.z + size.x, m_texOff.y + size.z),
-        Polygon({u2, u3, l3, l2}, m_texOff.x + size.z + size.x, m_texOff.y + 0, m_texOff.x + size.z + size.x + size.x, m_texOff.y + size.z),
-        Polygon({u1, u0, u3, u2}, m_texOff.x + size.z, m_texOff.y + size.z, m_texOff.x + size.z + size.x, m_texOff.y + size.z + size.y),
-        Polygon({l0, l1, l2, l3}, m_texOff.x + size.z + size.z + size.z, m_texOff.y + size.z, m_texOff.x + size.z + size.x + size.z + size.x, m_texOff.y + size.z + size.y)
-    };
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, polygons.size() * sizeof(Polygon), polygons.data(), GL_STATIC_DRAW);
-}
-
-void Cube::render() {
+void Cube::render(Vertex* where) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, m_pos);
-    model = glm::rotate(model, m_rot.z * 57.29578f, glm::vec3(0.f, 0.f, 1.f));
-    model = glm::rotate(model, m_rot.y * 57.29578f, glm::vec3(0.f, 1.f, 0.f));
-    model = glm::rotate(model, m_rot.x * 57.29578f, glm::vec3(1.f, 0.f, 0.f));
+    model = glm::rotate(model, glm::radians(m_rot.z), glm::vec3(0.f, 0.f, 1.f));
+    model = glm::rotate(model, glm::radians(m_rot.y), glm::vec3(0.f, 1.f, 0.f));
+    model = glm::rotate(model, glm::radians(m_rot.x), glm::vec3(1.f, 0.f, 0.f));
 
-    // aahh we need matrix stack
-    Game::get().setModelMatrix(model);
+    for (int x = 0; x < 2; x++) {
+        for (int y = 0; y < 2; y++) {
+            for (int z = 0; z < 2; z++) {
+                glm::vec4 vertex(x * m_size.x, y * m_size.y, z * m_size.z, 1.0);
+                vertex = model * vertex;
+                where->x = vertex.x;
+                where->y = vertex.y;
+                where->z = vertex.z;
+                where++;
+            }
+        }
+    }
 
-    glBindVertexArray(m_vao);
-    glDrawArrays(GL_QUADS, 0, 24);
-    glBindVertexArray(0);
+    // // aahh we need matrix stack
+    // Game::get().setModelMatrix(model);
 }

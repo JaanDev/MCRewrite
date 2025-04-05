@@ -7,6 +7,7 @@
 #include <Level.hpp>
 #include <list>
 #include <character/Zombie.hpp>
+#include <Timer.hpp>
 
 class Game {
 public:
@@ -27,8 +28,11 @@ public:
     HitResult pick(const glm::vec3& start, const glm::vec3& direction, Level& level);
 
     void setModelMatrix(const glm::mat4& model);
+
+    inline const Timer& getTimer() const { return m_timer; }
 private:
     GLFWwindow* m_window;
     GLuint m_defaultShader;
     std::list<Zombie> m_zombies;
+    Timer m_timer;
 };

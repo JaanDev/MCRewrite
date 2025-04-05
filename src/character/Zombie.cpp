@@ -10,8 +10,12 @@ Zombie::Zombie(Level& level, const glm::vec3& pos) : Entity(level), m_head({0, 0
     m_timeOff = (float)Math::random() * 1239813.0f;
     m_rot = Math::random() * glm::pi<double>() * 2.0;
     m_speed = 1.f;
+
+    Vertex* vertices = new Vertex[24 * 6];
+    
     // m_head = Cube({0, 0});
-    m_head.addBox({-4.0f, -8.0f, -4.0f}, {8, 8, 8});
+    m_head.init({0, 0}, {-4.0f, -8.0f, -4.0f}, {8, 8, 8}, vertices);
+    vertices += 24;
     
     // m_body = Cube({16, 16});
     m_body.addBox({-4.0f, 0.0f, -2.0f}, {8, 12, 4});
@@ -33,7 +37,7 @@ Zombie::Zombie(Level& level, const glm::vec3& pos) : Entity(level), m_head({0, 0
     m_leg1.setPos({2.0f, 12.0f, 0.0f});
 }
 
-void Zombie::render(float a) {
+void Zombie::render() {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, Textures::loadTexture("char.png", GL_NEAREST));
     double time = (glfwGetTime() * 10.0 * m_speed) + m_timeOff;

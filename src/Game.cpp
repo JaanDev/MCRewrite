@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <ctime>
-#include <Timer.hpp>
 #include <Level.hpp>
 #include <Player.hpp>
 #include <glm/fwd.hpp>
@@ -16,7 +15,7 @@
 #include <Icon.hpp>
 #include <impl/InputHelper.hpp>
 
-Game::Game() {}
+Game::Game() : m_timer(60) {}
 
 int Game::run() {
     static bool hasStarted = false;
@@ -74,7 +73,6 @@ int Game::run() {
 
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    Timer timer(60);
     Level level(256, 256, 64);
     Player player(level);
 
@@ -89,9 +87,9 @@ int Game::run() {
     glm::mat4 projection = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.05f, 1000.0f);
 
     while (!glfwGetKey(m_window, GLFW_KEY_ESCAPE) && !glfwWindowShouldClose(m_window)) {
-        timer.advanceTime();
+        m_timer.advanceTime();
 
-        for (uint32_t i = 0; i < timer.getTicks(); ++i) {
+        for (uint32_t i = 0; i < m_timer.getTicks(); ++i) {
             player.tick();
 
             for (auto& zombie : m_zombies) {
@@ -153,7 +151,7 @@ int Game::run() {
         view = glm::translate(view, {0, 0, -0.3f});
         view = glm::rotate(view, glm::radians(-player.getRot().y), {1, 0, 0});
         view = glm::rotate(view, glm::radians(player.getRot().x + 90), {0, 1, 0});
-        view = glm::translate(view, -(player.getPosO() + (player.getPos() - player.getPosO()) * timer.getPartialTicks()));
+        view = glm::translate(view, -(player.getPrevPos() + (player.getPos() - player.getPrevPos()) * m_timer.getPartialTicks()));
         glm::mat4 mvp = projection * view;
 
         glm::vec3 direction = glm::vec3(cos(rot.x) * cos(rot.y), sin(rot.y), sin(rot.x) * cos(rot.y));
@@ -173,7 +171,7 @@ int Game::run() {
         level.render(mvp);
 
         for (auto& zombie : m_zombies) {
-            zombie.render(timer.getPartialTicks());
+            zombie.render();
         }
 
         hitResult = pick(cameraPosition, direction, level);
