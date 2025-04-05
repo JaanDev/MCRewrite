@@ -5,6 +5,8 @@
 #include <utils.hpp>
 #include <glm/glm.hpp>
 #include <Level.hpp>
+#include <list>
+#include <character/Zombie.hpp>
 
 class Game {
 public:
@@ -24,7 +26,9 @@ public:
 
     HitResult pick(const glm::vec3& start, const glm::vec3& direction, Level& level);
 
+    void setModelMatrix(const glm::mat4& model);
 private:
     GLFWwindow* m_window;
     GLuint m_defaultShader;
+    std::list<Zombie> m_zombies;
 };

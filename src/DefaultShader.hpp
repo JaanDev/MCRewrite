@@ -16,10 +16,11 @@ flat out int fragShadow;
 out float fogFactor;
 
 uniform mat4 projection;
+uniform mat4 model;
 uniform mat4 view;
 
 void main() {
-    vec4 worldPos = vec4(aPos, 1.0);
+    vec4 worldPos = model * vec4(aPos, 1.0);
     gl_Position = projection * view * worldPos;
 
     vec4 viewPos = view * worldPos;

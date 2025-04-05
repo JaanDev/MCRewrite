@@ -1,20 +1,26 @@
 #include <Textures.hpp>
 #include <iostream>
 #include <glad/glad.h>
+#include <unordered_map>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-int lastId = INT_MIN;
+std::unordered_map<std::string, int> idMap; 
 
 int Textures::loadTexture(const std::string& resourceName, int mode) {
+    if (idMap.contains(resourceName)) {
+        return idMap[resourceName];
+    }
+
     // Generate a new texture id
     GLuint id;
     glGenTextures(1, &id);
 
-    bind(id);
+    idMap.insert(std::make_pair(resourceName, id));
+    std::cout << resourceName << " -> " << id << std::endl;
 
-    // Set texture filter mode
+    glBindTexture(GL_TEXTURE_2D, id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mode);
 
@@ -22,7 +28,7 @@ int Textures::loadTexture(const std::string& resourceName, int mode) {
     unsigned char* data = stbi_load(resourceName.c_str(), &width, &height, &channels, 4);
 
     if (!data) {
-        std::cerr << "Texture load failed: " << resourceName << std::endl;
+        std::cerr << "!!" << std::endl;
         return 0;
     }
 
@@ -31,11 +37,4 @@ int Textures::loadTexture(const std::string& resourceName, int mode) {
     stbi_image_free(data);
 
     return id;
-}
-
-void Textures::bind(int id) {
-    if (id != lastId) {
-        glBindTexture(GL_TEXTURE_2D, id);
-        lastId = id;
-    }
 }

@@ -14,6 +14,7 @@ CPMAddPackage("gh:richgel999/miniz#master")
 file(GLOB SOURCES
     ${CMAKE_SOURCE_DIR}/libs/glad/src/glad.c
     ${CMAKE_SOURCE_DIR}/src/impl/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/character/*.cpp
     ${CMAKE_SOURCE_DIR}/src/*.cpp
 )
 

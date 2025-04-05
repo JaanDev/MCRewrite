@@ -93,6 +93,10 @@ int Game::run() {
 
         for (uint32_t i = 0; i < timer.getTicks(); ++i) {
             player.tick();
+
+            for (auto& zombie : m_zombies) {
+                zombie.tick();
+            }    
         }
 
         glfwGetCursorPos(m_window, &mouse.x, &mouse.y);
@@ -135,6 +139,10 @@ int Game::run() {
             level.save();
         }
 
+        if (InputHelper::isKeyPressed(GLFW_KEY_G)) {
+            m_zombies.push_back(Zombie(level, player.getPos()));
+        }
+
         // begin render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -145,7 +153,7 @@ int Game::run() {
         view = glm::translate(view, {0, 0, -0.3f});
         view = glm::rotate(view, glm::radians(-player.getRot().y), {1, 0, 0});
         view = glm::rotate(view, glm::radians(player.getRot().x + 90), {0, 1, 0});
-        view = glm::translate(view, -(player.getPrevPos() + (player.getPos() - player.getPrevPos()) * timer.getPartialTicks()));
+        view = glm::translate(view, -(player.getPosO() + (player.getPos() - player.getPosO()) * timer.getPartialTicks()));
         glm::mat4 mvp = projection * view;
 
         glm::vec3 direction = glm::vec3(cos(rot.x) * cos(rot.y), sin(rot.y), sin(rot.x) * cos(rot.y));
@@ -160,7 +168,13 @@ int Game::run() {
         glUniform1i(glGetUniformLocation(m_defaultShader, "useTexture"), 1);
         glBindTexture(GL_TEXTURE_2D, texture);
 
+        setModelMatrix(glm::mat4(1.f));
+
         level.render(mvp);
+
+        for (auto& zombie : m_zombies) {
+            zombie.render(timer.getPartialTicks());
+        }
 
         hitResult = pick(cameraPosition, direction, level);
 
@@ -289,4 +303,8 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
     }
 
     return result;
+}
+
+void Game::setModelMatrix(const glm::mat4& model) {
+    glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 }
