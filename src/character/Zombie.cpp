@@ -39,10 +39,10 @@ void Zombie::render(float a) {
     double time = (glfwGetTime() * 10.0 * m_speed) + m_timeOff;
     float yy = ((-glm::abs(glm::sin(time * 0.6662))) * 5.0) - 23.0;
     m_head.render();
-    m_body.render();
-    m_arm0.render();
-    m_arm1.render();
-    m_leg0.render();
-    m_leg1.render();
+    // m_body.render();
+    // m_arm0.render();
+    // m_arm1.render();
+    // m_leg0.render();
+    // m_leg1.render();
     glDisable(GL_TEXTURE_2D);
 }

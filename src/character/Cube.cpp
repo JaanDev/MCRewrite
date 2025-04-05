@@ -12,8 +12,8 @@ Cube::Cube(const glm::ivec2& textureOffset) : m_texOff(textureOffset) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, x));
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
-    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, u));
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 }
@@ -21,14 +21,14 @@ Cube::Cube(const glm::ivec2& textureOffset) : m_texOff(textureOffset) {
 void Cube::addBox(const glm::vec3& pos0, const glm::ivec3& size) {
     glm::vec3 pos1 = pos0 + glm::vec3(size);
 
-    Vertex u0 = Vertex{pos0.x, pos0.y, pos0.z, 0.0f, 0.0f};
-    Vertex u1 = Vertex{pos1.x, pos0.y, pos0.z, 0.0f, 8.0f};
-    Vertex u2 = Vertex{pos1.x, pos1.y, pos0.z, 8.0f, 8.0f};
-    Vertex u3 = Vertex{pos0.x, pos1.y, pos0.z, 8.0f, 0.0f};
-    Vertex l0 = Vertex{pos0.x, pos0.y, pos1.z, 0.0f, 0.0f};
-    Vertex l1 = Vertex{pos1.x, pos0.y, pos1.z, 0.0f, 8.0f};
-    Vertex l2 = Vertex{pos1.x, pos1.y, pos1.z, 8.0f, 8.0f};
-    Vertex l3 = Vertex{pos0.x, pos1.y, pos1.z, 8.0f, 0.0f};
+    Vertex u0 = {pos0.x, pos0.y, pos0.z, 0.0f, 0.0f};
+    Vertex u1 = {pos1.x, pos0.y, pos0.z, 0.0f, 8.0f};
+    Vertex u2 = {pos1.x, pos1.y, pos0.z, 8.0f, 8.0f};
+    Vertex u3 = {pos0.x, pos1.y, pos0.z, 8.0f, 0.0f};
+    Vertex l0 = {pos0.x, pos0.y, pos1.z, 0.0f, 0.0f};
+    Vertex l1 = {pos1.x, pos0.y, pos1.z, 0.0f, 8.0f};
+    Vertex l2 = {pos1.x, pos1.y, pos1.z, 8.0f, 8.0f};
+    Vertex l3 = {pos0.x, pos1.y, pos1.z, 8.0f, 0.0f};
 
     std::array<Polygon, 6> polygons = {
         Polygon({l1, u1, u2, l2}, m_texOff.x + size.z + size.x, m_texOff.y + size.z, m_texOff.x + size.z + size.z + size.z, m_texOff.y + size.z + size.y),
