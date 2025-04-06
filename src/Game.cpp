@@ -79,7 +79,7 @@ int Game::run() {
     int z = 100;
 
     while (z-- > 0) {
-        m_zombies.push_back(Zombie(level, glm::vec3(0.f)));
+        m_zombies.push_back(Zombie(level, glm::vec3(128.f, 0.f, 128.f)));
     }
 
     int frames = 0;
@@ -143,10 +143,6 @@ int Game::run() {
             level.save();
         }
 
-        if (InputHelper::isKeyPressed(GLFW_KEY_G)) {
-            m_zombies.push_back(Zombie(level, player.getPos()));
-        }
-
         // begin render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -176,6 +172,10 @@ int Game::run() {
 
         level.render(mvp);
 
+        for (auto& zombie : m_zombies) {
+            zombie.render();
+        }
+
         hitResult = pick(cameraPosition, direction, level);
 
         if (hitResult.hit) {
@@ -185,13 +185,6 @@ int Game::run() {
             glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)(std::sin(glfwGetTime() * 10) * 0.2f) + 0.4f);
 
             level.renderHit(hitResult);
-
-            glUniform1i(glGetUniformLocation(m_defaultShader, "useTexture"), 1);
-            glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), 1.f);
-        }
-
-        for (auto& zombie : m_zombies) {
-            zombie.render();
         }
 
         glfwSwapBuffers(m_window);
