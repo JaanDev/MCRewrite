@@ -76,6 +76,12 @@ int Game::run() {
     Level level(256, 256, 64);
     Player player(level);
 
+    int z = 100;
+
+    while (z-- > 0) {
+        m_zombies.push_back(Zombie(level, glm::vec3(0.f)));
+    }
+
     int frames = 0;
     auto lastTime = std::chrono::steady_clock::now();
     glm::dvec2 prevMouse;
@@ -170,10 +176,6 @@ int Game::run() {
 
         level.render(mvp);
 
-        for (auto& zombie : m_zombies) {
-            zombie.render();
-        }
-
         hitResult = pick(cameraPosition, direction, level);
 
         if (hitResult.hit) {
@@ -183,6 +185,13 @@ int Game::run() {
             glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), (float)(std::sin(glfwGetTime() * 10) * 0.2f) + 0.4f);
 
             level.renderHit(hitResult);
+
+            glUniform1i(glGetUniformLocation(m_defaultShader, "useTexture"), 1);
+            glUniform1f(glGetUniformLocation(m_defaultShader, "alpha"), 1.f);
+        }
+
+        for (auto& zombie : m_zombies) {
+            zombie.render();
         }
 
         glfwSwapBuffers(m_window);
@@ -304,5 +313,6 @@ HitResult Game::pick(const glm::vec3& start, const glm::vec3& direction, Level& 
 }
 
 void Game::setModelMatrix(const glm::mat4& model) {
+    m_model = model;
     glUniformMatrix4fv(glGetUniformLocation(m_defaultShader, "model"), 1, GL_FALSE, glm::value_ptr(model));
 }

@@ -6,7 +6,7 @@
 class Zombie : public Entity {
 public:
     Zombie(Level& level, const glm::vec3& pos);
-    // void tick() override;
+    void tick() override;
     void render();
 
 protected:

@@ -28,6 +28,7 @@ public:
     HitResult pick(const glm::vec3& start, const glm::vec3& direction, Level& level);
 
     void setModelMatrix(const glm::mat4& model);
+    glm::mat4& getModelMatrix() { return m_model; }
 
     inline const Timer& getTimer() const { return m_timer; }
 private:
@@ -35,4 +36,6 @@ private:
     GLuint m_defaultShader;
     std::list<Zombie> m_zombies;
     Timer m_timer;
+
+    glm::mat4 m_model;
 };
